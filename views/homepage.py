@@ -36,7 +36,6 @@ def render():
     </div>
     """, unsafe_allow_html=True)
 
-
     st.markdown("<div style='margin: 2rem 0 1rem 0;'></div>", unsafe_allow_html=True)
 
     # Section title
@@ -73,6 +72,66 @@ def render():
         </div>
         """, unsafe_allow_html=True)
 
+    st.markdown("<div style='margin-top: 1.5rem;'></div>", unsafe_allow_html=True)
 
+    # Second row
+    col3, col4 = st.columns(2, gap="large")
 
-    
+    with col3:
+        st.markdown("""
+        <div class='protection-card'>
+            <div style='width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+                        display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; font-size: 1.6rem; color: white;'>
+                👒
+            </div>
+            <h3 style='margin-bottom: 0.5rem; color: #1f2937; font-size: 1.8rem;'>Wear a Hat</h3>
+            <p style='color: #6b7280; font-size: 1rem; margin: 0;'>Wide-brimmed hat preferred</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col4:
+        st.markdown("""
+        <div class='protection-card'>
+            <div style='width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+                        display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; font-size: 1.6rem; color: white;'>
+                🌳
+            </div>
+            <h3 style='margin-bottom: 0.5rem; color: #1f2937; font-size: 1.8rem;'>Seek Shade</h3>
+            <p style='color: #6b7280; font-size: 1rem; margin: 0;'>Stay indoors during peak UV hours</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<div style='margin: 2.5rem 0 1rem 0;'></div>", unsafe_allow_html=True)
+
+    # Extra info cards
+    info1, info2 = st.columns(2, gap="large")
+
+    with info1:
+        st.markdown("""
+        <div class='card'>
+            <h3 style='margin-top: 0; color: #1f2937;'>Today's UV Summary</h3>
+            <p style='color: #6b7280; margin-bottom: 0.5rem;'>
+                UV levels are high today in Melbourne. Outdoor protection is strongly recommended.
+            </p>
+            <ul style='color: #6b7280; padding-left: 1.2rem; margin-bottom: 0;'>
+                <li>Peak UV hours: 10:00 AM – 4:00 PM</li>
+                <li>Recommended SPF: 30+</li>
+                <li>Reapply sunscreen every 2 hours</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with info2:
+        st.markdown("""
+        <div class='card'>
+            <h3 style='margin-top: 0; color: #1f2937;'>Quick Tips</h3>
+            <p style='color: #6b7280; margin-bottom: 0.5rem;'>
+                Simple actions can reduce UV exposure significantly.
+            </p>
+            <ul style='color: #6b7280; padding-left: 1.2rem; margin-bottom: 0;'>
+                <li>Check UV before leaving home</li>
+                <li>Carry sunscreen in your bag</li>
+                <li>Choose shaded outdoor areas</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
