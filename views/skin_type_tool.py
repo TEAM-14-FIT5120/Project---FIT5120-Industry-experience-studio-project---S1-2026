@@ -46,3 +46,43 @@ def render():
     )
     
     st.markdown("<div style='margin: 1.5rem 0;'></div>", unsafe_allow_html=True)
+
+    # Question 4
+    st.markdown("#### 4. Do you have freckles on unexposed skin?")
+    freckles = st.radio(
+        "freckles",
+        ["Many", "Several", "Few", "Very few", "None"],
+        label_visibility="collapsed"
+    )
+    
+    st.markdown("</div>", unsafe_allow_html=True)
+    
+    st.markdown("<div style='margin: 2rem 0;'></div>", unsafe_allow_html=True)
+    
+    # Submit button
+    if st.button("🔍 Get My Skin Type & Protection Plan", use_container_width=True):
+        # Simple logic to determine skin type
+        score = 0
+        
+        # Calculate score based on answers
+        if skin_color == "Very fair or pale":
+            score += 0
+        elif skin_color == "Fair":
+            score += 1
+        elif skin_color == "Medium":
+            score += 2
+        elif skin_color == "Olive or light brown":
+            score += 3
+        else:
+            score += 4
+            
+        if sun_reaction == "Always burns, never tans":
+            score += 0
+        elif sun_reaction == "Burns easily, tans minimally":
+            score += 1
+        elif sun_reaction == "Burns moderately, tans gradually":
+            score += 2
+        elif sun_reaction == "Burns minimally, tans easily":
+            score += 3
+        else:
+            score += 4
