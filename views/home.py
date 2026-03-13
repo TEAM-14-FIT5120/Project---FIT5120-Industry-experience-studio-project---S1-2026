@@ -37,7 +37,7 @@ def render():
         </p>
     </div>
     """, unsafe_allow_html=True)
-    uv_index = 1
+    uv_index = 5
     uv_color, uv_level = get_uv_style(uv_index)
     uv_warning = get_uv_warning(uv_index)
 
