@@ -1,5 +1,5 @@
 import streamlit as st
-from get_live_uv import get_weather_data
+from views.get_live_uv import get_weather_data
 
 def get_uv_style(uv):
     if uv <= 2:
@@ -55,20 +55,17 @@ def render():
     center_col = st.columns([1, 2, 1])[1]
     with center_col:
         st.markdown(f"""
-        <div style='display: flex; justify-content: center; margin-bottom: 1.5rem;'>
-            <div class='uv-gauge' style='border-color: {uv_color} ;'>
-                <div style='font-size: 2.5rem; line-height: 1;'>☀️</div>
-                <p class='uv-number' style='color: {uv_color} ;'>{uv_index}</p>
-                <p class='uv-label'>UV Index</p>
-                <p class='uv-level' style='color: {uv_color} ;'>{uv_level}</p>
-
+        <div style='display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 1.5rem;'>
+            <div style='border: 8px solid {uv_color}; width: 180px; height: 180px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1);'>
+                <div style='font-size: 2rem; line-height: 1;'>☀️</div>
+                <p style='font-size: 3.5rem; font-weight: bold; color: {uv_color}; margin: 0; line-height: 1;'>{uv_index}</p>
+                <p style='font-size: 0.8rem; color: #6b7280; margin: 0; text-transform: uppercase;'>UV Index</p>
+                <p style='font-size: 1.1rem; font-weight: bold; color: {uv_color}; margin: 0;'>{uv_level}</p>
             </div>
         </div>
         """, unsafe_allow_html=True)
 
     # Warning banner
-
-
     st.markdown(f"""
     <div class='warning-banner' style='background: {uv_color};'>
         ⚠️ {uv_warning}
