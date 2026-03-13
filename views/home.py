@@ -1,5 +1,6 @@
 import streamlit as st
-from views.get_live_uv import get_weather_data
+from views.get_live_uv import get_weather_data,get_uv_protection_window
+from datetime import datetime
 
 def get_uv_style(uv):
     if uv <= 2:
@@ -41,9 +42,15 @@ def render():
     
     weather_data = get_weather_data()
     if weather_data:
-        uv_index = weather_data.get('uvi', 0)
+        uv_index = weather_data.get('current', {}).get('uvi', 0)
+        hourly_data = weather_data.get('hourly', [])
+        
+        # 3. Get the Protection Window (using our new logic)
+        start_time, end_time = get_uv_protection_window(weather_data)
+        
     else:
         uv_index = 0
+        start_time, end_time = None, None
 
     uv_index = round(uv_index) if uv_index is not None else 0
     
@@ -143,14 +150,14 @@ def render():
     info1, info2 = st.columns(2, gap="large")
 
     with info1:
-        st.markdown("""
+        st.markdown(f"""
         <div class='card'>
             <h3 style='margin-top: 0; color: #1f2937;'>Today's UV Summary</h3>
             <p style='color: #6b7280; margin-bottom: 0.5rem;'>
                 UV levels are high today in Melbourne. Outdoor protection is strongly recommended.
             </p>
             <ul style='color: #6b7280; padding-left: 1.2rem; margin-bottom: 0;'>
-                <li>Peak UV hours: 10:00 AM – 4:00 PM</li>
+                <li>Peak UV hours: {start_time} – {end_time}</li>
                 <li>Recommended SPF: 30+</li>
                 <li>Reapply sunscreen every 2 hours</li>
             </ul>
