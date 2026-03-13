@@ -1,4 +1,5 @@
 import streamlit as st
+from get_live_uv import get_weather_data
 
 def get_uv_style(uv):
     if uv <= 2:
@@ -37,7 +38,16 @@ def render():
         </p>
     </div>
     """, unsafe_allow_html=True)
-    uv_index = 5
+    
+    weather_data = get_weather_data()
+    if weather_data:
+        uv_index = weather_data.get('uvi', 0)
+    else:
+        uv_index = 0
+
+    uv_index = round(uv_index) if uv_index is not None else 0
+    
+    # UV gauge centered
     uv_color, uv_level = get_uv_style(uv_index)
     uv_warning = get_uv_warning(uv_index)
 
@@ -51,11 +61,14 @@ def render():
                 <p class='uv-number' style='color: {uv_color} ;'>{uv_index}</p>
                 <p class='uv-label'>UV Index</p>
                 <p class='uv-level' style='color: {uv_color} ;'>{uv_level}</p>
+
             </div>
         </div>
         """, unsafe_allow_html=True)
 
     # Warning banner
+
+
     st.markdown(f"""
     <div class='warning-banner' style='background: {uv_color};'>
         ⚠️ {uv_warning}
