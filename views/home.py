@@ -46,11 +46,11 @@ def render():
     with center_col:
         st.markdown(f"""
         <div style='display: flex; justify-content: center; margin-bottom: 1.5rem;'>
-            <div class='uv-gauge' style='border-color: {uv_color} !important;'>
+            <div class='uv-gauge' style='border-color: {uv_color} ;'>
                 <div style='font-size: 2.5rem; line-height: 1;'>☀️</div>
-                <p class='uv-number' style='color: {uv_color} !important;'>{uv_index}</p>
+                <p class='uv-number' style='color: {uv_color} ;'>{uv_index}</p>
                 <p class='uv-label'>UV Index</p>
-                <p class='uv-level' style='color: {uv_color} !important;'>{uv_level}</p>
+                <p class='uv-level' style='color: {uv_color} ;'>{uv_level}</p>
             </div>
         </div>
         """, unsafe_allow_html=True)
