@@ -146,3 +146,81 @@ def render():
             st.success(f"✅ **Low UV:** Peak UV of {max_uv} at {peak_time}. Standard protection sufficient.")
 
         st.markdown("</div>", unsafe_allow_html=True)
+
+        # Protection recommendations
+        st.markdown("<div style='margin: 2rem 0;'></div>", unsafe_allow_html=True)
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
+        st.markdown("### 🛡️ Your Protection Schedule")
+
+        reapply_times = []
+
+        st.markdown("**Before You Go:**")
+        st.markdown(f"""
+        <div style='background: #f0fdf4; border-left: 3px solid #22c55e;
+             padding: 1rem; margin: 1rem 0; border-radius: 4px;'>
+            <strong>{(start_datetime - timedelta(minutes=30)).strftime("%I:%M %p")}</strong> -
+            Apply sunscreen 30 minutes before going outside
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("<div style='margin: 1.5rem 0;'></div>", unsafe_allow_html=True)
+        st.markdown("**During Your Activity:**")
+
+        reapply_interval = timedelta(hours=2)
+        next_reapply = start_datetime + reapply_interval
+
+        while next_reapply < end_datetime:
+            reapply_times.append(next_reapply)
+            next_reapply += reapply_interval
+
+        for idx, reapply_time in enumerate(reapply_times, 1):
+            st.markdown(f"""
+            <div style='background: #fef3c7; border-left: 3px solid #f59e0b;
+                 padding: 1rem; margin: 0.5rem 0; border-radius: 4px;'>
+                <strong>{reapply_time.strftime("%I:%M %p")}</strong> -
+                Reapply sunscreen (Application #{idx + 1})
+            </div>
+            """, unsafe_allow_html=True)
+
+        st.markdown("<div style='margin: 1.5rem 0;'></div>", unsafe_allow_html=True)
+        st.markdown("**Activity-Specific Tips:**")
+
+        activity_tips = {
+            "Beach/Swimming": [
+                "💧 Use water-resistant SPF 50+ sunscreen",
+                "🏊 Reapply immediately after swimming",
+                "🏖️ Use beach umbrella during peak hours",
+                "👙 Consider rash guard or swim shirt"
+            ],
+            "Outdoor Sports": [
+                "💦 Reapply after sweating heavily",
+                "👕 Wear moisture-wicking UV-protective clothing",
+                "🧢 Choose a sports cap with neck flap",
+                "💧 Stay hydrated to prevent heat stress"
+            ],
+            "Hiking": [
+                "🎒 Pack sunscreen in your bag",
+                "👒 Wear wide-brimmed hiking hat",
+                "🧥 Long sleeves protect better at altitude",
+                "⏰ Take shade breaks every hour"
+            ]
+        }
+
+        default_tips = [
+            "🧴 Keep sunscreen with you",
+            "👒 Wear protective clothing",
+            "🌳 Take regular shade breaks",
+            "💧 Stay hydrated"
+        ]
+
+        tips = activity_tips.get(activity_type, default_tips)
+
+        for tip in tips:
+            st.markdown(f"""
+            <div style='background: #f9fafb; padding: 0.75rem 1rem;
+                 margin: 0.5rem 0; border-radius: 8px;'>
+                {tip}
+            </div>
+            """, unsafe_allow_html=True)
+
+        st.markdown("</div>", unsafe_allow_html=True)
