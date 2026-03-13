@@ -2,7 +2,8 @@ import streamlit as st
 from views.get_live_uv import get_weather_data
 
 
-def render():
+
+def render(weather_data):
     # Top spacing
     st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
 
@@ -16,13 +17,14 @@ def render():
     </div>
     """, unsafe_allow_html=True)
     
-    weather_data = get_weather_data()
     if weather_data:
-        uv_val = weather_data.get('uvi', 0)
+        uv_val = weather_data.get('uvi')
     else:
         uv_val = 0
-        
-    display_uv = round(uv_val)
+    print(uv_val)
+    print(weather_data)
+    
+    st.write(f"UV Index: {uv_val}")
 
     def get_uv_status(uv_val):
         if uv_val >= 11:
@@ -39,13 +41,13 @@ def render():
     # UV gauge centered
     center_col = st.columns([1, 2, 1])[1]
     with center_col:
-        st.markdown("""
+        st.markdown(f"""
         <div style='display: flex; justify-content: center; margin-bottom: 1.5rem;'>
-            <div class='uv-gauge'>
+            <div class='uv-gauge' style='border: 8px solid {get_uv_status(uv_val)[1]};'>
                 <div style='font-size: 2.5rem; line-height: 1;'>☀️</div>
-                <p class='uv-number'>8</p>
+                <p class='uv-number' style='color: {get_uv_status(uv_val)[1]};'>{uv_val}</p>
                 <p class='uv-label'>UV Index</p>
-                <p class='uv-level'>High</p>
+                <p class='uv-level' style='color: {get_uv_status(uv_val)[1]};'>{get_uv_status(uv_val)[0]}</p>
             </div>
         </div>
         """, unsafe_allow_html=True)

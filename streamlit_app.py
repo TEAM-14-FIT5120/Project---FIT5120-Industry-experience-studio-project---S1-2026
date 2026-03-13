@@ -4,6 +4,8 @@ A Streamlit app for young Australians aged 18-24
 """
 
 import streamlit as st
+from views.get_live_uv import get_weather_data
+from streamlit_js_eval import get_geolocation
 
 # Page configuration
 st.set_page_config(
@@ -168,11 +170,17 @@ with nav5:
 st.markdown("<div style='margin-bottom: 1.5rem;'></div>", unsafe_allow_html=True)
 
 page = st.session_state.page
+user_location = get_geolocation()
+
+weather_data = None
+if user_location:
+    weather_data = get_weather_data(user_location)
+
 
 # Render page
 if page == "Dashboard":
     from views import home
-    home.render()
+    home.render(weather_data)
 elif page == "UV Awareness":
     from views import uv_awareness
     uv_awareness.render()
