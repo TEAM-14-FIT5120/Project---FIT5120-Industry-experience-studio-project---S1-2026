@@ -224,3 +224,66 @@ def render():
             """, unsafe_allow_html=True)
 
         st.markdown("</div>", unsafe_allow_html=True)
+
+        # Packing checklist
+        st.markdown("<div style='margin: 2rem 0;'></div>", unsafe_allow_html=True)
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
+        st.markdown("### 🎒 Sun Protection Checklist")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.checkbox("✅ SPF 30+ Sunscreen", value=False)
+            st.checkbox("✅ Wide-brimmed hat", value=False)
+            st.checkbox("✅ UV-protective sunglasses", value=False)
+            st.checkbox("✅ Protective clothing", value=False)
+
+        with col2:
+            st.checkbox("✅ Water bottle", value=False)
+            st.checkbox("✅ Shade equipment (umbrella/tent)", value=False)
+            st.checkbox("✅ Lip balm with SPF", value=False)
+            st.checkbox("✅ After-sun lotion", value=False)
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        st.markdown("<div style='margin: 2rem 0;'></div>", unsafe_allow_html=True)
+
+        st.success("💾 **Tip:** Save this plan or set reminders on your phone!")
+
+    # Quick tips section
+    st.markdown("<div style='margin: 3rem 0;'></div>", unsafe_allow_html=True)
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.markdown("""
+        <div class='card' style='text-align: center;'>
+            <div style='font-size: 3rem; margin-bottom: 1rem;'>🌅</div>
+            <h4>Best Times</h4>
+            <p style='color: #6b7280; font-size: 0.875rem;'>
+                Before 10am and after 4pm have lower UV levels
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col2:
+        st.markdown("""
+        <div class='card' style='text-align: center;'>
+            <div style='font-size: 3rem; margin-bottom: 1rem;'>⏰</div>
+            <h4>Reapply Often</h4>
+            <p style='color: #6b7280; font-size: 0.875rem;'>
+                Every 2 hours, or immediately after swimming/sweating
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col3:
+        st.markdown("""
+        <div class='card' style='text-align: center;'>
+            <div style='font-size: 3rem; margin-bottom: 1rem;'>☁️</div>
+            <h4>Cloudy Days Too</h4>
+            <p style='color: #6b7280; font-size: 0.875rem;'>
+                Up to 80% of UV rays penetrate clouds
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
