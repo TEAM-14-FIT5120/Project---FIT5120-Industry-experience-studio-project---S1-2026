@@ -47,7 +47,9 @@ st.markdown("""
 
     .uv-gauge {
         background: white;
-        border: 4px solid;
+        border-width: 4px;
+        border-style: solid;
+        border-color: transparent !important;
         border-radius: 50%;
         width: 260px;
         height: 260px;
