@@ -81,7 +81,6 @@ st.markdown("""
     }
 
     .warning-banner {
-        background: #ef4444;
         color: white;
         padding: 1rem;
         border-radius: 12px;

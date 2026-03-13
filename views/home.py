@@ -37,9 +37,10 @@ def render():
         </p>
     </div>
     """, unsafe_allow_html=True)
-    uv_index = 8
+    uv_index = 1
     uv_color, uv_level = get_uv_style(uv_index)
     uv_warning = get_uv_warning(uv_index)
+
     # UV gauge centered
     center_col = st.columns([1, 2, 1])[1]
     with center_col:
@@ -56,7 +57,7 @@ def render():
 
     # Warning banner
     st.markdown(f"""
-    <div class='warning-banner'>
+    <div class='warning-banner' style='background: {uv_color};'>
         ⚠️ {uv_warning}
     </div>
     """, unsafe_allow_html=True)
