@@ -60,7 +60,7 @@ st.markdown("""
     }
 
     .uv-number {
-        font-size: 4rem;
+        font-size: 10rem;
         font-weight: 700;
         color: #ef4444;
         margin: 0;
