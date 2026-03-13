@@ -49,8 +49,8 @@ st.markdown("""
         background: white;
         border: 4px solid #ef4444;
         border-radius: 50%;
-        width: 200px;
-        height: 200px;
+        width: 260px;
+        height: 260px;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -60,10 +60,11 @@ st.markdown("""
     }
 
     .uv-number {
-        font-size: 10rem;
-        font-weight: 700;
+        font-size: 7rem !important;
+        font-weight: 700 !important;
         color: #ef4444;
-        margin: 0;
+        margin: 0 !important;
+        line-height: 1 !important;
     }
 
     .uv-label {
