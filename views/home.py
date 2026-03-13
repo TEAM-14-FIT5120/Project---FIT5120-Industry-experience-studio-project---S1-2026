@@ -1,6 +1,29 @@
 import streamlit as st
 
-
+def get_uv_style(uv):
+    if uv <= 2:
+        return "#22c55e", "Low"
+    elif uv <= 5:
+        return "#eab308", "Moderate"
+    elif uv <= 7:
+        return "#f97316", "High"
+    elif uv <= 10:
+        return "#ef4444", "Very High"
+    else:
+        return "#a855f7", "Extreme"
+    
+def get_uv_warning(uv):
+    if uv <= 2:
+        return "Low UV – minimal protection required. Enjoy your day outdoors."
+    elif uv <= 5:
+        return "Moderate UV – wear sunscreen and sunglasses when outdoors."
+    elif uv <= 7:
+        return "High UV – wear SPF30+ sunscreen, a hat and sunglasses."
+    elif uv <= 10:
+        return "Very High UV – reduce sun exposure between 10 AM and 4 PM."
+    else:
+        return "Extreme UV – avoid outdoor activities during peak hours."    
+    
 def render():
     # Top spacing
     st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
@@ -14,25 +37,27 @@ def render():
         </p>
     </div>
     """, unsafe_allow_html=True)
-
+    uv_index = 8
+    uv_color, uv_level = get_uv_style(uv_index)
+    uv_warning = get_uv_warning(uv_index)
     # UV gauge centered
     center_col = st.columns([1, 2, 1])[1]
     with center_col:
-        st.markdown("""
+        st.markdown(f"""
         <div style='display: flex; justify-content: center; margin-bottom: 1.5rem;'>
-            <div class='uv-gauge'>
+            <div class='uv-gauge' style='border-color: {uv_color} !important;'>
                 <div style='font-size: 2.5rem; line-height: 1;'>☀️</div>
-                <p class='uv-number'>8</p>
+                <p class='uv-number' style='color: {uv_color} !important;'>{uv_index}</p>
                 <p class='uv-label'>UV Index</p>
-                <p class='uv-level'>High</p>
+                <p class='uv-level' style='color: {uv_color} !important;'>{uv_level}</p>
             </div>
         </div>
         """, unsafe_allow_html=True)
 
     # Warning banner
-    st.markdown("""
+    st.markdown(f"""
     <div class='warning-banner'>
-        ⚠️ High UV – skin damage may occur quickly. Minimise sun exposure from 10 AM to 4 PM.
+        ⚠️ {uv_warning}
     </div>
     """, unsafe_allow_html=True)
 
