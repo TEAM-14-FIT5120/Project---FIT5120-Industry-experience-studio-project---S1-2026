@@ -47,7 +47,7 @@ st.markdown("""
 
     .uv-gauge {
         background: white;
-        border: 4px solid #ef4444;
+        border: 4px solid;
         border-radius: 50%;
         width: 260px;
         height: 260px;
@@ -62,7 +62,6 @@ st.markdown("""
     .uv-number {
         font-size: 7rem !important;
         font-weight: 700 !important;
-        color: #ef4444;
         margin: 0 !important;
         line-height: 1 !important;
     }
@@ -76,7 +75,6 @@ st.markdown("""
     .uv-level {
         font-size: 1.25rem;
         font-weight: 600;
-        color: #ef4444;
         margin: 0.5rem 0 0 0;
     }
 
