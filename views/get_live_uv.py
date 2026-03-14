@@ -10,7 +10,14 @@ st.title("Live UV & Temperature Monitor")
 def get_weather_data():
     location = get_geolocation()
 
-    if location:
+    if (
+    location
+    and isinstance(location, dict)
+    and "coords" in location
+    and location["coords"]
+    and "latitude" in location["coords"]
+    and "longitude" in location["coords"]
+    ):
         lat = location['coords']['latitude']
         lon = location['coords']['longitude']
         api_key = st.secrets["api_keys"]["openweather"]

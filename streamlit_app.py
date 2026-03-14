@@ -13,6 +13,14 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+PAGES = {
+    "dashboard": "Dashboard",
+    "uv-awareness": "UV Awareness",
+    "skin-type-tool": "Skin Type Tool",
+    "protection-planner": "Protection Planner",
+    "reminder-settings": "Reminder Settings",
+}
+
 # Custom CSS
 st.markdown("""
 <style>
@@ -105,6 +113,41 @@ st.markdown("""
         justify-content: center;
         margin-bottom: 1rem;
     }
+    
+    .navbar {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    }
+
+    .nav-item {
+        flex: 1;
+        min-width: 160px;
+        text-decoration: none;
+        text-align: center;
+        background: white;
+        color: #1f2937 !important;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 0.8rem 1rem;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        transition: all 0.2s ease;
+    }
+
+    .nav-item:hover {
+        border-color: #fb923c;
+        color: #ea580c !important;
+        transform: translateY(-1px);
+    }
+
+    .nav-item.active {
+        background: linear-gradient(90deg, #fb923c 0%, #fbbf24 100%);
+        color: white !important;
+        border: 1px solid #fb923c;
+        box-shadow: 0 4px 12px rgba(251, 146, 60, 0.28);
+    }
 
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
@@ -116,8 +159,36 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Session state
+query_page = st.query_params.get("page", "dashboard")
+
+if query_page not in PAGES:
+    query_page = "dashboard"
+
 if "page" not in st.session_state:
-    st.session_state.page = "Dashboard"
+    st.session_state.page = query_page
+else:
+    st.session_state.page = query_page
+
+def render_top_nav(current_page):
+    nav_items = [
+        ("dashboard", "🏠 Dashboard"),
+        ("uv-awareness", "📊 UV Awareness"),
+        ("skin-type-tool", "👤 Skin Type Tool"),
+        ("protection-planner", "📅 Protection Planner"),
+        ("reminder-settings", "🔔 Reminder Settings"),
+    ]
+
+    nav_html = "<div class='navbar'>"
+    for slug, label in nav_items:
+        active_class = "active" if current_page == slug else ""
+        nav_html += f"""
+            <a class='nav-item {active_class}' href='?page={slug}' target='_self'>
+                {label}
+            </a>
+        """
+    nav_html += "</div>"
+
+    st.markdown(nav_html, unsafe_allow_html=True)
 
 # Top header
 st.markdown("""
@@ -141,45 +212,24 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Top nav
-nav1, nav2, nav3, nav4, nav5 = st.columns(5)
-
-with nav1:
-    if st.button("🏠 Dashboard", use_container_width=True):
-        st.session_state.page = "Dashboard"
-
-with nav2:
-    if st.button("📊 UV Awareness", use_container_width=True):
-        st.session_state.page = "UV Awareness"
-
-with nav3:
-    if st.button("👤 Skin Type Tool", use_container_width=True):
-        st.session_state.page = "Skin Type Tool"
-
-with nav4:
-    if st.button("📅 Protection Planner", use_container_width=True):
-        st.session_state.page = "Protection Planner"
-
-with nav5:
-    if st.button("🔔 Reminder Settings", use_container_width=True):
-        st.session_state.page = "Reminder Settings"
+render_top_nav(st.session_state.page)
 
 st.markdown("<div style='margin-bottom: 1.5rem;'></div>", unsafe_allow_html=True)
 
 page = st.session_state.page
 
-# Render page
-if page == "Dashboard":
+if page == "dashboard":
     from views import home
     home.render()
-elif page == "UV Awareness":
+elif page == "uv-awareness":
     from views import uv_awareness
     uv_awareness.render()
-elif page == "Skin Type Tool":
+elif page == "skin-type-tool":
     from views import skin_type_tool
     skin_type_tool.render()
-elif page == "Protection Planner":
+elif page == "protection-planner":
     from views import protection_planner
     protection_planner.render()
-elif page == "Reminder Settings":
+elif page == "reminder-settings":
     from views import reminder_settings
     reminder_settings.render()
