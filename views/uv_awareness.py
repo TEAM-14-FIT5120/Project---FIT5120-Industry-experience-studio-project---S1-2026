@@ -6,6 +6,11 @@ import streamlit as st
 import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
+import pandas as pd
+conn = st.connection("neon", type="sql")
+
+query = "SELECT * FROM cancer_stats;"
+df = conn.query(query, ttl="10m")
 
 def render():
     st.markdown("### ← Back to Dashboard", unsafe_allow_html=True)
@@ -38,15 +43,20 @@ def render():
         """, unsafe_allow_html=True)
     
     # Create line chart data
-    skin_cancer_data = pd.DataFrame({
-        'Year': ['2018', '2019', '2020', '2021', '2022', '2023', '2024'],
-        'Cases': [13200, 14100, 14800, 15400, 16200, 17100, 18000]
-    })
+    
+    df['Year'] = pd.to_numeric(df['Year'])
+    df['Count'] = pd.to_numeric(df['Count'])
+
+# 2. Group by Year and sum the Counts
+    yearly_counts = df.groupby('Year')['Count'].sum().reset_index()
+
+# 3. Rename columns for a cleaner chart (optional)
+    yearly_counts.columns = ['Year', 'Total Cases']
     
     fig1 = go.Figure()
     fig1.add_trace(go.Scatter(
-        x=skin_cancer_data['Year'],
-        y=skin_cancer_data['Cases'],
+        x=yearly_counts['Year'],
+        y=yearly_counts['Total Cases'],
         mode='lines+markers',
         name='Melanoma Cases',
         line=dict(color='#f97316', width=3),
@@ -73,10 +83,22 @@ def render():
     )
     
     st.plotly_chart(fig1, use_container_width=True)
-    
-    st.markdown("""
+
+    val_2008 = df[df['Year'] == 2008]['Count'].sum()
+    val_2022 = df[df['Year'] == 2022]['Count'].sum()
+
+# 5. Calculate percentage increase
+    if val_2008 > 0:
+        percentage_change = ((val_2022 - val_2008) / val_2008) * 100
+        display_percent = round(abs(percentage_change))
+        direction = "increased" if percentage_change > 0 else "decreased"
+    else:
+        display_percent = 0
+        direction = "changed"
+        
+    st.markdown(f"""
     <p style='text-align: center; color: #6b7280; font-size: 0.875rem; margin-top: 1rem;'>
-        Melanoma diagnoses among young Australians have increased by 36% from 2018 to 2024.
+        Melanoma diagnoses among young Australians have {direction} by {display_percent}% from 2008 to 2022.
     </p>
     """, unsafe_allow_html=True)
     
