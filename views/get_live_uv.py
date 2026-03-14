@@ -5,7 +5,6 @@ from datetime import datetime
 
 
 
-st.title("Live UV & Temperature Monitor")
 
 def get_weather_data():
     location = get_geolocation()

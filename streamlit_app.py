@@ -122,25 +122,26 @@ st.markdown("""
     }
 
     .nav-item {
-        flex: 1;
-        min-width: 160px;
-        display: block;
-        text-decoration: none;
-        text-align: center;
-        background: white;
-        color: #1f2937 !important;
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        padding: 0.8rem 1rem;
-        font-weight: 600;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        transition: all 0.2s ease;
+    flex: 1;
+    min-width: 160px;
+    display: block;
+    text-decoration: none !important;
+    text-align: center;
+    background: white;
+    color: #1f2937 !important;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 0.8rem 1rem;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: all 0.2s ease;
     }
 
     .nav-item:hover {
         border-color: #fb923c;
         color: #ea580c !important;
         transform: translateY(-1px);
+        text-decoration: none !important;
     }
 
     .nav-item.active {
