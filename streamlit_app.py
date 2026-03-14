@@ -124,6 +124,7 @@ st.markdown("""
     .nav-item {
         flex: 1;
         min-width: 160px;
+        display: block;
         text-decoration: none;
         text-align: center;
         background: white;
@@ -179,13 +180,11 @@ def render_top_nav(current_page):
     ]
 
     nav_html = "<div class='navbar'>"
+
     for slug, label in nav_items:
         active_class = "active" if current_page == slug else ""
-        nav_html += f"""
-            <a class='nav-item {active_class}' href='?page={slug}' target='_self'>
-                {label}
-            </a>
-        """
+        nav_html += f"""<a class="nav-item {active_class}" href="?page={slug}" target="_self">{label}</a>"""
+
     nav_html += "</div>"
 
     st.markdown(nav_html, unsafe_allow_html=True)
