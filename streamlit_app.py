@@ -185,8 +185,24 @@ def render_top_nav(current_page):
 st.markdown("""
 <div style="background: linear-gradient(135deg,#fb923c 0%,#f59e0b 55%,#fbbf24 100%); padding: 1.35rem 1.6rem; border-radius: 10px; margin-bottom: 1.2rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 10px 24px rgba(249, 115, 22, 0.16); border: 1px solid rgba(255,255,255,0.22);">
 <div style="display: flex; align-items: center; gap: 14px;">
-<div style="width: 50px; height: 50px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.22); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.45rem;">
-☀️
+<div style="
+width:44px;
+height:44px;
+background:rgba(255,255,255,0.18);
+border-radius:12px;
+display:flex;
+align-items:center;
+justify-content:center;
+box-shadow: inset 0 1px 2px rgba(255,255,255,0.25);
+">
+<div style="
+width:18px;
+height:18px;
+border-radius:50%;
+background:linear-gradient(180deg,#fde68a,#fbbf24);
+box-shadow:0 0 0 4px rgba(255,255,255,0.18);
+">
+</div>
 </div>
 <div>
 <div style="font-size: 1.55rem; font-weight: 800; color: white; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 0.25rem;">
