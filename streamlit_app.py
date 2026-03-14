@@ -25,32 +25,33 @@ PAGES = {
 st.markdown("""
 <style>
     .stApp {
-        background: linear-gradient(135deg, #fff5f0 0%, #fffbea 50%, #eff6ff 100%);
+    background: linear-gradient(180deg, #fffaf5 0%, #fffdf8 55%, #ffffff 100%);
     }
 
     .stButton > button {
-        background: white;
-        color: #1f2937;
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        padding: 0.7rem 1rem;
-        font-weight: 600;
-        min-height: 48px;
-        width: 100%;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    background: white;
+    color: #334155;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.65rem 1rem;
+    font-weight: 600;
+    min-height: 44px;
+    box-shadow: none;
     }
 
     .stButton > button:hover {
-        border-color: #fb923c;
-        color: #ea580c;
+    border-color: #f97316;
+    color: #ea580c;
+    background: #fff7ed;
     }
 
-    .card {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        margin-bottom: 1rem;
+    .card,
+    .protection-card {
+    background: rgba(255,255,255,0.92);
+    padding: 1.35rem;
+    border-radius: 8px;
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    box-shadow: 0 6px 24px rgba(15, 23, 42, 0.05);
     }
 
     .uv-gauge {
@@ -88,20 +89,12 @@ st.markdown("""
 
     .warning-banner {
         color: white;
-        padding: 1rem;
-        border-radius: 12px;
+        padding: 0.95rem 1rem;
+        border-radius: 8px;
         text-align: center;
         margin: 1.5rem auto;
         max-width: 700px;
         font-weight: 500;
-    }
-
-    .protection-card {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        text-align: center;
     }
 
     .icon-circle {
@@ -116,39 +109,37 @@ st.markdown("""
     
     .navbar {
     display: flex;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
+    gap: 2rem;
+    margin: 0.4rem 0 1.8rem 0;
+    align-items: center;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    padding-bottom: 0.75rem;
     flex-wrap: wrap;
     }
 
     .nav-item {
-    flex: 1;
-    min-width: 160px;
-    display: block;
+    display: inline-block;
     text-decoration: none !important;
-    text-align: center;
-    background: white;
-    color: #1f2937 !important;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 0.8rem 1rem;
+    color: #475569 !important;
+    font-size: 0.98rem;
     font-weight: 600;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    transition: all 0.2s ease;
+    padding: 0.25rem 0.1rem 0.7rem 0.1rem;
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    background: transparent;
+    transition: all 0.18s ease;
+    padding-bottom:0.65rem;
     }
 
     .nav-item:hover {
-        border-color: #fb923c;
-        color: #ea580c !important;
-        transform: translateY(-1px);
-        text-decoration: none !important;
+    color: #ea580c !important;
+    text-decoration: none !important;
     }
 
     .nav-item.active {
-        background: linear-gradient(90deg, #fb923c 0%, #fbbf24 100%);
-        color: white !important;
-        border: 1px solid #fb923c;
-        box-shadow: 0 4px 12px rgba(251, 146, 60, 0.28);
+    color: #ea580c !important;
+    border-bottom: 3px solid #fb923c;
     }
 
     #MainMenu {visibility: hidden;}
@@ -173,11 +164,11 @@ else:
 
 def render_top_nav(current_page):
     nav_items = [
-        ("dashboard", "🏠 Dashboard"),
-        ("uv-awareness", "📊 UV Awareness"),
-        ("skin-type-tool", "👤 Skin Type Tool"),
-        ("protection-planner", "📅 Protection Planner"),
-        ("reminder-settings", "🔔 Reminder Settings"),
+        ("dashboard", "Dashboard"),
+        ("uv-awareness", "UV Awareness"),
+        ("skin-type-tool", "Skin Type Tool"),
+        ("protection-planner", "Protection Planner"),
+        ("reminder-settings", "Reminder Settings"),
     ]
 
     nav_html = "<div class='navbar'>"
@@ -192,22 +183,24 @@ def render_top_nav(current_page):
 
 # Top header
 st.markdown("""
-<div style='background: linear-gradient(90deg, #fb923c 0%, #fbbf24 100%);
-            padding: 1rem 1.5rem; border-radius: 14px; margin-bottom: 1rem;
-            display: flex; align-items: center; justify-content: space-between;'>
-    <div style='display: flex; align-items: center; gap: 12px;'>
-        <div style='width: 44px; height: 44px; background: rgba(255,255,255,0.25);
-                    border-radius: 50%; display: flex; align-items: center; justify-content: center;
-                    font-size: 1.4rem;'>
-            ☀️
-        </div>
-        <div>
-            <div style='font-size: 1.35rem; font-weight: 700; color: white;'>UVsense</div>
-            <div style='font-size: 0.9rem; color: rgba(255,255,255,0.9);'>
-                UV Safety Platform · Melbourne, Australia
-            </div>
-        </div>
-    </div>
+<div style="background: linear-gradient(135deg,#fb923c 0%,#f59e0b 55%,#fbbf24 100%); padding: 1.35rem 1.6rem; border-radius: 10px; margin-bottom: 1.2rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 10px 24px rgba(249, 115, 22, 0.16); border: 1px solid rgba(255,255,255,0.22);">
+<div style="display: flex; align-items: center; gap: 14px;">
+<div style="width: 50px; height: 50px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.22); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.45rem;">
+🌞
+</div>
+<div>
+<div style="font-size: 1.55rem; font-weight: 800; color: white; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 0.25rem;">
+UVsense
+</div>
+<div style="font-size: 0.95rem; color: rgba(255,255,255,0.92); font-weight: 500;">
+Smart UV Safety Platform for Young Australians
+</div>
+</div>
+</div>
+<div style="display: flex; align-items: center; gap: 0.45rem; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 0.52rem 0.82rem; border-radius: 999px; font-size: 0.84rem; font-weight: 600; white-space: nowrap; backdrop-filter: blur(6px);">
+<span style="width: 8px; height: 8px; border-radius: 50%; background: #86efac; display: inline-block;"></span>
+Melbourne, Australia
+</div>
 </div>
 """, unsafe_allow_html=True)
 
