@@ -154,7 +154,7 @@ def render():
         <div class='card'>
             <h3 style='margin-top: 0; color: #1f2937;'>Today's UV Summary</h3>
             <p style='color: #6b7280; margin-bottom: 0.5rem;'>
-                UV levels are high today in Melbourne. Outdoor protection is strongly recommended.
+                {uv_warning}
             </p>
             <ul style='color: #6b7280; padding-left: 1.2rem; margin-bottom: 0;'>
                 <li>Peak UV hours: {start_time} – {end_time}</li>
