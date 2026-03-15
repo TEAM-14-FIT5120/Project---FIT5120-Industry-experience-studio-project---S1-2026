@@ -46,8 +46,8 @@ def get_uv_protection_window(weather_data):
     start_ts = high_uv_hours[0]['dt']
     end_ts = high_uv_hours[-1]['dt']
 
-    start_time = datetime.fromtimestamp(start_ts).strftime('%-I:%M %p')
-    end_time = datetime.fromtimestamp(end_ts).strftime('%-I:%M %p')
+    start_time = datetime.fromtimestamp(start_ts).strftime('%-I:%M %p').lstrip('0')
+    end_time = datetime.fromtimestamp(end_ts).strftime('%-I:%M %p').lstrip('0')
 
     return start_time, end_time
     
