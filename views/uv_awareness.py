@@ -2,12 +2,12 @@
 UV Awareness Page - Educational content with data visualizations
 """
 
-from matplotlib import scale
+from matplotlib import scale as mpl_scale
 import streamlit as st
 import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
-import pandas as pd
+import streamlit.components.v1 as components
 conn = st.connection("neon", type="sql")
 
 query = "SELECT * FROM cancer_stats;"
@@ -132,63 +132,91 @@ def render():
     # Create waffle chart data
     
     pop_col = 'Population at 30 June 2024 (\'000)'
-    tan_col = 'Proportion (%)_tan'
+    burn_col = 'Proportion (%)_sunburn'
+    MIN_ICONS = 5
+    MAX_ICONS = 15
+    count_col = 'count_sunburn'
+    chart_2_df['count_sunburnt'] = chart_2_df[pop_col] * (chart_2_df[burn_col]*1000)
+    
+    max_c = chart_2_df[count_col].max()
+    min_c = chart_2_df[count_col].min()
 
     # Calculate the actual population impact (Volume)
-    chart_2_df['Impact_Score'] = chart_2_df[pop_col] * chart_2_df[tan_col]
+    chart_2_df['Impact_Score'] = chart_2_df[pop_col] * chart_2_df[burn_col]
     max_impact = chart_2_df['Impact_Score'].max()
     
-    def render_tanning_row(region, pct, scale):
-        # 1. The SVG Icon Template
-        svg_template = """
-        <svg width="22" height="45" viewBox="0 0 20 40" style="margin-right: 2px;">
+    def render_risk_row(region, sunburn_pct, n_icons,percentage_sunburn):
+    # Template for one icon: Yellow background (Tanners), Red fill (Sunburns)
+        svg_icon = """
+        <svg width="20" height="20" viewBox="0 0 20 20" style="margin-right:4px; display:inline-block;">
             <defs>
-                <linearGradient id="grad_{id}" x1="0%" y1="100%" x2="0%" y2="0%">
-                    <stop offset="{fill}%" style="stop-color:#fbbf24;stop-opacity:1" />
-                    <stop offset="{fill}%" style="stop-color:#e5e7eb;stop-opacity:1" />
+                <linearGradient id="grad_[[ID]]_[[I]]" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="[[FILL]]%" style="stop-color:#ef4444; stop-opacity:1"/>
+                    <stop offset="[[FILL]]%" style="stop-color:#fbbf24; stop-opacity:1"/>
                 </linearGradient>
             </defs>
-            <path d="M10 2c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm5 7h-1c-.55 0-1 .45-1 1v7h-1v19c0 .55-.45 1-1 1h-4c-.55 0-1-.45-1-1v-19h-1v-7c0-.55-.45-1-1-1h-1c-.55 0-1 .45-1 1v8c0 .55.45 1 1 1h1v19c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2v-19h1c.55 0 1-.45 1-1v-8c0-.55-.45-1-1-1z" 
-                fill="url(#grad_{id})" />
+            <circle cx="10" cy="10" r="8" fill="url(#grad_[[ID]]_[[I]])" />
         </svg>
         """
         
         icons_html = ""
-        for i in range(10):
-            lower_bound = i * 10
-            fill = max(0, min(100, (pct - lower_bound) * 10))
-            icons_html += svg_template.format(id=f"{region.replace(' ', '_')}_{i}", fill=fill)
-
-        row_width = int(max(160, 480 * scale))
-
-        html_row = (f"""
-        <div style="display: flex; align-items: center; margin-bottom: 12px; padding: 10px; border-bottom: 1px solid #f1f5f9;">
-            <div style="width: 140px; font-weight: 600; font-size: 0.9rem; color: #334155;">{region}</div>
-            <div style="display: flex; width: {row_width}px; justify-content: start;">
+        clean_id = "".join(filter(str.isalnum, region))
+        
+        for i in range(n_icons):
+            # Determine the percentage range for this specific circle
+            lower_bound = i * (100 / n_icons)
+            upper_bound = (i + 1) * (100 / n_icons)
+            
+            if sunburn_pct >= upper_bound:
+                fill_pct = 100  # 100% Red
+            elif sunburn_pct <= lower_bound:
+                fill_pct = 0    # 100% Yellow
+            else:
+                # For the middle circle, calculate exactly where the sharp cut should be
+                fill_pct = (sunburn_pct - lower_bound) / (upper_bound - lower_bound) * 100
+        
+        # We use two layered divs. The red one is clipped to show the yellow underneath.
+            icons_html += f"""
+            <div style="position: relative; width: 18px; height: 18px; margin-right: 4px; flex-shrink: 0; display: inline-block;">
+                <div style="position: absolute; width: 100%; height: 100%; background-color: #fbbf24; border-radius: 50%;"></div>
+                
+                <div style="position: absolute; width: 100%; height: 100%; background-color: #ef4444; border-radius: 50%; 
+                            clip-path: inset(0 {100 - fill_pct}% 0 0);"></div>
+            </div>
+            """
+        
+        layout = f"""
+        <div style="display: flex; align-items: center; margin-bottom: 8px; padding: 10px; border-bottom: 1px solid #f1f5f9; font-family: sans-serif; background-color: white;">
+            <div style="width: 150px; font-weight: 600; font-size: 14px; color: #334155; flex-shrink: 0;">{region}</div>
+            <div style="display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center; flex-grow: 1;">
                 {icons_html}
             </div>
-            <div style="margin-left: 20px; font-size: 0.85rem; color: #64748b;">
-                <b style="color: #d97706; font-size: 1.1rem;">{pct}%</b><br>intent to tan
+            <div style="margin-left: 20px; text-align: right; width: 100px; flex-shrink: 0;">
+                <span style="color: #ef4444; font-weight: 700; font-size: 16px;">{percentage_sunburn}%</span>
+                <div style="font-size: 11px; color: #94a3b8;"> of total population</div>
             </div>
         </div>
-        """)
-        
-        return html_row.format(reg=region, width=row_width, icons=icons_html, val=pct)
-        
-    st.markdown("""
-        Each row represents a state. Shaded icons show the percentage of people 
-        actively seeking a suntan. **Wider rows** indicate a higher total population impact.
-    """, unsafe_allow_html=True)
+        """
+        return layout
     
     
-    sorted_df = chart_2_df.sort_values(by='Impact_Score', ascending=False)
+    all_rows_html = '<div style="background-color: white; padding: 10px; border-radius: 10px;">'
+
+# Sort so most tanners are at the top
+    sorted_df = chart_2_df.sort_values(by=count_col, ascending=False)
+    max_impact = sorted_df[count_col].max()
+    min_impact = sorted_df[count_col].min()
 
     for _, row in sorted_df.iterrows():
-        current_scale = row['Impact_Score'] / max_impact
-        st.markdown(
-            render_tanning_row(row['Region'], row[tan_col], current_scale), 
-            unsafe_allow_html=True
-        )
+        # Linear scale for 5 to 15 icons
+        scale = (row['Impact_Score'] - min_impact) / (max_impact - min_impact) if max_impact != min_impact else 0.5
+        n_icons = int(5 + (10 * scale))
+        
+        all_rows_html += render_risk_row(row['Region'], (row['count_sunburnt']/row[count_col]), n_icons,row['Proportion (%)_sunburn'])
+    all_rows_html += '</div>'
+
+# 3. Display the component
+    components.html(all_rows_html, height=600, scrolling=True)
     
     
     
