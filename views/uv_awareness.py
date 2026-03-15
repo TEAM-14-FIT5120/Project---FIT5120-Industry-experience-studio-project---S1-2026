@@ -2,6 +2,7 @@
 UV Awareness Page - Educational content with data visualizations
 """
 
+from matplotlib import scale
 import streamlit as st
 import plotly.graph_objects as go
 import plotly.express as px
@@ -11,6 +12,8 @@ conn = st.connection("neon", type="sql")
 
 query = "SELECT * FROM cancer_stats;"
 df = conn.query(query, ttl="10m")
+query2 = 'SELECT * FROM sunburn_stats;'
+chart_2_df = conn.query(query2, ttl="10m")
 
 def render():
     st.markdown("### ← Back to Dashboard", unsafe_allow_html=True)
@@ -29,7 +32,7 @@ def render():
     with col1:
         st.markdown("""
         <div style='width: 48px; height: 48px; background: linear-gradient(135deg, #f87171 0%, #f97316 100%); 
-             border-radius: 50%; display: flex; align-items: center; justify-content: center;'>
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;'>
             <span style='color: white; font-size: 1.5rem;'>📈</span>
         </div>
         """, unsafe_allow_html=True)
@@ -113,7 +116,7 @@ def render():
     with col1:
         st.markdown("""
         <div style='width: 48px; height: 48px; background: linear-gradient(135deg, #fbbf24 0%, #f97316 100%); 
-             border-radius: 50%; display: flex; align-items: center; justify-content: center;'>
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;'>
             <span style='color: white; font-size: 1.5rem;'>⚠️</span>
         </div>
         """, unsafe_allow_html=True)
@@ -122,67 +125,72 @@ def render():
         st.markdown("""
         <h2 style='margin: 0;'>Sunburn Rates by Age Group (2024)</h2>
         <p style='color: #6b7280; font-size: 0.875rem; margin: 0.25rem 0 0 0;'>
-            Percentage of young Australians experiencing sunburn vs. protected
+            Percentage of young Australians experiencing sunburn
         </p>
         """, unsafe_allow_html=True)
     
-    # Create bar chart data
-    uv_exposure_data = pd.DataFrame({
-        'Age Group': ['18-20', '21-22', '23-24'],
-        'Experienced Sunburn (%)': [68, 62, 58],
-        'Adequately Protected (%)': [32, 38, 42]
-    })
+    # Create waffle chart data
     
-    fig2 = go.Figure()
-    fig2.add_trace(go.Bar(
-        x=uv_exposure_data['Age Group'],
-        y=uv_exposure_data['Experienced Sunburn (%)'],
-        name='Experienced Sunburn (%)',
-        marker_color='#ef4444',
-        marker_line_color='#ef4444',
-        marker_line_width=0,
-        textposition='outside'
-    ))
+    pop_col = 'Population at 30 June 2024 (\'000)'
+    tan_col = 'Proportion (%)_tan'
+
+    # Calculate the actual population impact (Volume)
+    chart_2_df['Impact_Score'] = chart_2_df[pop_col] * chart_2_df[tan_col]
+    max_impact = chart_2_df['Impact_Score'].max()
     
-    fig2.add_trace(go.Bar(
-        x=uv_exposure_data['Age Group'],
-        y=uv_exposure_data['Adequately Protected (%)'],
-        name='Adequately Protected (%)',
-        marker_color='#22c55e',
-        marker_line_color='#22c55e',
-        marker_line_width=0,
-        textposition='outside'
-    ))
+    def render_tanning_row(region, pct, scale):
+        # 1. The SVG Icon Template
+        svg_template = """
+        <svg width="22" height="45" viewBox="0 0 20 40" style="margin-right: 2px;">
+            <defs>
+                <linearGradient id="grad_{id}" x1="0%" y1="100%" x2="0%" y2="0%">
+                    <stop offset="{fill}%" style="stop-color:#fbbf24;stop-opacity:1" />
+                    <stop offset="{fill}%" style="stop-color:#e5e7eb;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+            <path d="M10 2c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm5 7h-1c-.55 0-1 .45-1 1v7h-1v19c0 .55-.45 1-1 1h-4c-.55 0-1-.45-1-1v-19h-1v-7c0-.55-.45-1-1-1h-1c-.55 0-1 .45-1 1v8c0 .55.45 1 1 1h1v19c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2v-19h1c.55 0 1-.45 1-1v-8c0-.55-.45-1-1-1z" 
+                fill="url(#grad_{id})" />
+        </svg>
+        """
+        
+        icons_html = ""
+        for i in range(10):
+            lower_bound = i * 10
+            fill = max(0, min(100, (pct - lower_bound) * 10))
+            icons_html += svg_template.format(id=f"{region.replace(' ', '_')}_{i}", fill=fill)
+
+        row_width = int(max(160, 480 * scale))
+
+        html_row = (f"""
+        <div style="display: flex; align-items: center; margin-bottom: 12px; padding: 10px; border-bottom: 1px solid #f1f5f9;">
+            <div style="width: 140px; font-weight: 600; font-size: 0.9rem; color: #334155;">{region}</div>
+            <div style="display: flex; width: {row_width}px; justify-content: start;">
+                {icons_html}
+            </div>
+            <div style="margin-left: 20px; font-size: 0.85rem; color: #64748b;">
+                <b style="color: #d97706; font-size: 1.1rem;">{pct}%</b><br>intent to tan
+            </div>
+        </div>
+        """)
+        
+        return html_row.format(reg=region, width=row_width, icons=icons_html, val=pct)
+        
+    st.markdown("""
+        Each row represents a state. Shaded icons show the percentage of people 
+        actively seeking a suntan. **Wider rows** indicate a higher total population impact.
+    """, unsafe_allow_html=True)
     
-    fig2.update_layout(
-        height=400,
-        margin=dict(l=20, r=20, t=20, b=20),
-        plot_bgcolor='white',
-        paper_bgcolor='white',
-        barmode='group',
-        xaxis=dict(
-            title='Age Group',
-            showgrid=False,
-            linecolor='#e5e7eb'
-        ),
-        yaxis=dict(
-            title='Percentage (%)',
-            showgrid=True,
-            gridcolor='#f3f4f6',
-            linecolor='#e5e7eb',
-            range=[0, 80]
-        ),
-        legend=dict(
-            orientation='h',
-            yanchor='bottom',
-            y=1.02,
-            xanchor='right',
-            x=1
-        ),
-        hovermode='x unified'
-    )
     
-    st.plotly_chart(fig2, use_container_width=True)
+    sorted_df = chart_2_df.sort_values(by='Impact_Score', ascending=False)
+
+    for _, row in sorted_df.iterrows():
+        current_scale = row['Impact_Score'] / max_impact
+        st.markdown(
+            render_tanning_row(row['Region'], row[tan_col], current_scale), 
+            unsafe_allow_html=True
+        )
+    
+    
     
     st.markdown("""
     <p style='text-align: center; color: #6b7280; font-size: 0.875rem; margin-top: 1rem;'>
@@ -204,8 +212,8 @@ def render():
         st.markdown("""
         <div class='card'>
             <div style='width: 64px; height: 64px; background: linear-gradient(135deg, #f87171 0%, #f97316 100%); 
-                 border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; 
-                 margin-bottom: 1rem;'>
+                border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; 
+                margin-bottom: 1rem;'>
                 <span style='color: white; font-size: 2rem;'>⚠️</span>
             </div>
             <h3 style='margin-bottom: 1rem;'>Why UV Matters</h3>
