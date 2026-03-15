@@ -123,7 +123,7 @@ def render():
     
     with col2:
         st.markdown("""
-        <h2 style='margin: 0;'>Sunburn Rates by Age Group (2024)</h2>
+        <h2 style='margin: 0;'>Statewise Sunburn Rates(2023-2024)</h2>
         <p style='color: #6b7280; font-size: 0.875rem; margin: 0.25rem 0 0 0;'>
             Percentage of young Australians experiencing sunburn
         </p>
