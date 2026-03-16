@@ -178,3 +178,33 @@ def render():
             </ul>
         </div>
         """, unsafe_allow_html=True)
+        st.markdown("<div style='margin: 2.5rem 0 1rem 0;'></div>", unsafe_allow_html=True)
+
+    # CTA section
+    cta_left, cta_center, cta_right = st.columns([0.12, 0.76, 0.12])
+
+    with cta_center:
+        st.markdown("""
+        <div class='card' style='text-align: center; border: 1px solid #fdba74; background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);'>
+            <div style='width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+                        display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; font-size: 1.6rem; color: white;
+                        box-shadow: 0 6px 16px rgba(249,115,22,0.22);'>
+                🧴
+            </div>
+            <div style='color:#9a3412; font-size:0.9rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; margin-bottom:0.35rem;'>
+                Personalised Advice
+            </div>
+            <div style='color:#1f2937; font-size:2rem; font-weight:800; margin:0 0 0.6rem 0;'>
+                Not sure about your skin type?
+            </div>
+            <div style='color:#6b7280; font-size:1rem; line-height:1.7; max-width:560px; margin:0 auto;'>
+                Try our Skin Type Tool to discover your skin type and get sun protection advice tailored to you.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        st.markdown("<div style='margin-top: 1.5rem;'></div>", unsafe_allow_html=True)
+        btn_left, btn_center, btn_right = st.columns([0.22, 0.56, 0.22])
+        with btn_center:
+            if st.button("Try Skin Type Tool", use_container_width=True, key="skin_type_cta"):
+                st.query_params["page"] = "skin-type-tool"
+                st.rerun()
