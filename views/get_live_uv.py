@@ -2,14 +2,14 @@ import streamlit as st
 import requests
 from streamlit_js_eval import get_geolocation
 from datetime import datetime
+import plotly.graph_objects as go
 
-
-
+st.title("Live UV & Temperature Monitor")
 
 def get_weather_data():
     location = get_geolocation()
 
-    if (
+    if(
     location
     and isinstance(location, dict)
     and "coords" in location

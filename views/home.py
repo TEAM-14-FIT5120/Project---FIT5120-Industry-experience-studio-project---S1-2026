@@ -25,7 +25,6 @@ def get_uv_warning(uv):
         return "Very High UV – reduce sun exposure between 10 AM and 4 PM."
     else:
         return "Extreme UV – avoid outdoor activities during peak hours."    
-    
 def render():
     # Top spacing
     st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
