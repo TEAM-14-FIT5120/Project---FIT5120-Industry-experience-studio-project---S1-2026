@@ -46,21 +46,35 @@ def render():
     </style>
     """, unsafe_allow_html=True)
     # Top spacing
-    weather_data = get_weather_data()
+    st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
+
+    st.markdown("### Search another location")
+    location_query = st.text_input(
+        "Search location",
+        placeholder="Enter suburb or city, e.g. Clayton, VIC",
+        label_visibility="collapsed"
+    )
+
+    weather_data = get_weather_data(
+        location_query=location_query.strip() if location_query.strip() else None
+    )
     if weather_data:
         uv_index = weather_data.get('current', {}).get('uvi', 0)
         start_time, end_time = get_uv_protection_window(weather_data)
-        location_name = weather_data.get("display_location", "Melbourne, Australia")
+        location_name = weather_data.get("display_location", "Melbourne, VIC")
         used_default_location = weather_data.get("used_default_location", True)
+        location_error = weather_data.get("location_error")
     else:
         uv_index = 0
         start_time, end_time = None, None
-        location_name = "Melbourne, Australia"
+        location_name = "Melbourne, VIC"
         used_default_location = True
-    location_error = weather_data.get("location_error") if weather_data else None
-
-    if location_error:
-        st.warning(f"Location access not granted. Showing default location.")
+        location_error = None
+    
+    if location_error == "Location not found":
+        st.warning("Location not found. Showing default location.")
+    elif location_error and used_default_location:
+        st.info("Using default location.")
 
     uv_index = round(uv_index) if uv_index is not None else 0
 
@@ -70,7 +84,7 @@ def render():
         else start_time or "Unavailable"
     )
 
-    if used_default_location:
+    if used_default_location and not location_query.strip():
         location_name = f"{location_name} (default)"
     # Location
     st.markdown(f"""

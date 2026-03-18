@@ -113,21 +113,88 @@ def get_browser_location():
     return st.session_state["browser_location"]
 
 
-def get_weather_data():
-    location = get_browser_location()
+def geocode_location(query):
+    api_key = st.secrets["api_keys"]["openweather"]
+    geo_url = "http://api.openweathermap.org/geo/1.0/direct"
 
+    params = {
+        "q": query,
+        "limit": 1,
+        "appid": api_key
+    }
+
+    try:
+        response = requests.get(geo_url, params=params, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+
+        if data and len(data) > 0:
+            place = data[0]
+
+            state = place.get("state", "")
+            state_map = {
+                "Victoria": "VIC",
+                "New South Wales": "NSW",
+                "Queensland": "QLD",
+                "South Australia": "SA",
+                "Western Australia": "WA",
+                "Tasmania": "TAS",
+                "Northern Territory": "NT",
+                "Australian Capital Territory": "ACT"
+            }
+            state_abbr = state_map.get(state, state)
+
+            return {
+                "name": place.get("name"),
+                "state": state_abbr,
+                "country": place.get("country", ""),
+                "lat": place.get("lat"),
+                "lon": place.get("lon")
+            }
+
+        return None
+
+    except Exception:
+        return None
+
+
+def get_weather_data(location_query=None):
     lat = -37.8136
     lon = 144.9631
     used_default_location = True
     location_error = None
+    display_location = "Melbourne, VIC"
 
-    if location and isinstance(location, dict):
-        if location.get("success") is True:
-            lat = location.get("latitude", lat)
-            lon = location.get("longitude", lon)
+    # 1. Search overrides auto-location
+    if location_query:
+        place = geocode_location(location_query)
+
+        if place and place.get("lat") is not None and place.get("lon") is not None:
+            lat = place["lat"]
+            lon = place["lon"]
             used_default_location = False
+
+            if place.get("name") and place.get("state"):
+                display_location = f"{place['name']}, {place['state']}"
+            elif place.get("name") and place.get("country"):
+                display_location = f"{place['name']}, {place['country']}"
+            else:
+                display_location = place.get("name", "Selected Location")
         else:
-            location_error = location.get("error_message", "Location access failed.")
+            location_error = "Location not found"
+
+    # 2. If no search, use browser location
+    else:
+        location = get_browser_location()
+
+        if location and isinstance(location, dict):
+            if location.get("success") is True:
+                lat = location.get("latitude", lat)
+                lon = location.get("longitude", lon)
+                used_default_location = False
+                display_location = reverse_geocode_location(lat, lon)
+            else:
+                location_error = location.get("error_message", "Location access failed.")
 
     api_key = st.secrets["api_keys"]["openweather"]
     exclude = "minutely,daily,alerts"
@@ -144,7 +211,7 @@ def get_weather_data():
         if "current" in data:
             data["used_default_location"] = used_default_location
             data["location_error"] = location_error
-            data["display_location"] = reverse_geocode_location(lat, lon)
+            data["display_location"] = display_location
             return data
         return None
 
