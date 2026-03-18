@@ -21,10 +21,8 @@ def render(weather_data):
         uv_val = weather_data.get('uvi')
     else:
         uv_val = 0
-    print(uv_val)
-    print(weather_data)
-    
-    st.write(f"UV Index: {uv_val}")
+        
+    uv_val = round(uv_val) if uv_val is not None else 0
 
     def get_uv_status(uv_val):
         if uv_val >= 11:
