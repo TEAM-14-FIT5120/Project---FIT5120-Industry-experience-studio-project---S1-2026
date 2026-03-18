@@ -39,7 +39,7 @@ def render():
     
     with col2:
         st.markdown("""
-        <h2 style='margin: 0;'>Melanoma Cases in Australia (18-24 age group)</h2>
+        <h2 style='margin: 0;'>Melanoma Cases in Australia</h2>
         <p style='color: #6b7280; font-size: 0.875rem; margin: 0.25rem 0 0 0;'>
             Annual diagnosed cases showing upward trend
         </p>
@@ -49,43 +49,55 @@ def render():
     
     df['Year'] = pd.to_numeric(df['Year'])
     df['Count'] = pd.to_numeric(df['Count'])
+    df_filtered = df[df['Sex'].isin(['Males', 'Females'])]
 
-# 2. Group by Year and sum the Counts
-    yearly_counts = df.groupby('Year')['Count'].sum().reset_index()
+    gender_counts = df_filtered.groupby(['Year', 'Sex'])['Count'].sum().reset_index()
+    fig1 = go.Figure()
+    colors = {'Males': '#3b82f6', 'Females': '#f472b6'}
+    
 
 # 3. Rename columns for a cleaner chart (optional)
-    yearly_counts.columns = ['Year', 'Total Cases']
-    
-    fig1 = go.Figure()
-    fig1.add_trace(go.Scatter(
-        x=yearly_counts['Year'],
-        y=yearly_counts['Total Cases'],
-        mode='lines+markers',
-        name='Melanoma Cases',
-        line=dict(color='#f97316', width=3),
-        marker=dict(size=8, color='#f97316')
-    ))
+    for gender in gender_counts['Sex'].unique():
+        gender_df = gender_counts[gender_counts['Sex'] == gender]
+        fig1.add_trace(go.Scatter(
+            x=gender_df['Year'],
+            y=gender_df['Count'],
+            mode='lines+markers',
+            name=gender,
+            line=dict(color=colors.get(gender, '#f97316'), width=3),
+            marker=dict(size=6)
+        ))
     
     fig1.update_layout(
-        height=400,
-        margin=dict(l=20, r=20, t=20, b=20),
-        plot_bgcolor='white',
-        paper_bgcolor='white',
-        xaxis=dict(
-            title='Year',
-            showgrid=False,
-            linecolor='#e5e7eb'
-        ),
-        yaxis=dict(
-            title='Cases',
-            showgrid=True,
-            gridcolor='#f3f4f6',
-            linecolor='#e5e7eb'
-        ),
-        hovermode='x unified'
-    )
-    
-    st.plotly_chart(fig1, use_container_width=True)
+            height=300,  # Reduced from 400
+            width=600,   # Set a fixed width to prevent it from stretching across the screen
+            margin=dict(l=40, r=20, t=10, b=40), # Tighter margins
+            plot_bgcolor='white',
+            paper_bgcolor='white',
+            xaxis=dict(
+                title='Year',
+                showgrid=False,
+                linecolor='#e5e7eb',
+                dtick=2 # Shows labels every 2 years to stay clean
+            ),
+            yaxis=dict(
+                title='Cases',
+                showgrid=True,
+                gridcolor='#f3f4f6',
+                linecolor='#e5e7eb'
+            ),
+            legend=dict(
+                orientation="h",       # Horizontal legend
+                yanchor="bottom",
+                y=1.02,
+                xanchor="right",
+                x=1
+            ),
+            hovermode='x unified'
+        )
+    _, chart_col, _ = st.columns([1, 2, 1])
+    with chart_col:
+        st.plotly_chart(fig1, use_container_width=False)
 
     val_2008 = df[df['Year'] == 2008]['Count'].sum()
     val_2022 = df[df['Year'] == 2022]['Count'].sum()

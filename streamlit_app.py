@@ -14,6 +14,33 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed"
 )
+# ... (imports and set_page_config) ...
+
+def hide_anchor_link():
+    st.markdown(
+        body="""
+        <style>
+            /* This targets the specific class Streamlit uses for anchor links */
+            .stHeaderAnchor {
+                display: none !important;
+            }
+            
+            /* Fallback for older versions or specific browser overrides */
+            [data-testid="stHeaderActionElements"] {
+                display: none !important;
+            }
+            
+            /* Remove the hover effect that creates space for the icon */
+            h1, h2, h3, h4, h5, h6 {
+                pointer-events: none;
+            }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+hide_anchor_link()
+
 PAGES = {
     "dashboard": "Dashboard",
     "uv-awareness": "UV Awareness",
@@ -227,7 +254,7 @@ render_top_nav(st.session_state.page)
 st.markdown("<div style='margin-bottom: 1.5rem;'></div>", unsafe_allow_html=True)
 
 page = st.session_state.page
-user_location = get_geolocation()
+user_location = get_geolocation(key="uvsense_geo_location")
 
 weather_data = None
 if user_location:
@@ -237,12 +264,12 @@ if user_location:
 if page == "dashboard":
     from views import home
     home.render(weather_data)
-elif page == "UV Awareness":
+elif page == "uv-awareness":
     from views import uv_awareness
     uv_awareness.render()
 elif page == "skin-type-tool":
     from views import skin_type_tool
-    skin_type_tool.render()
+    skin_type_tool.render(weather_data)
 elif page == "protection-planner":
     from views import protection_planner
     protection_planner.render()

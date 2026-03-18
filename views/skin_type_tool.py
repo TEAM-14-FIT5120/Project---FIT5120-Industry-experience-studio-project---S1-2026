@@ -36,7 +36,7 @@ def all_skin_types_chart(current_uv):
     )
     return fig
 
-def render():
+def render(weather_data):
     st.title("Skin Type Protection Tool")
     st.markdown("<p style='font-size: 1.125rem; color: #6b7280; margin-bottom: 2rem;'>Answer a few questions to get personalized sun protection recommendations based on your skin type.</p>", unsafe_allow_html=True)
 
@@ -90,8 +90,9 @@ def render():
             # Use cached UV if available to avoid geolocation reset
             if "cached_uv" not in st.session_state:
                 with st.spinner("Fetching live UV data..."):
-                    wd = get_weather_data()
-                    st.session_state["cached_uv"] = round(wd.get("current", {}).get("uvi", 6)) if wd else 6
+                        if weather_data:
+                            uv_index = weather_data.get('current', {}).get('uvi', 0)
+                        st.session_state["cached_uv"] = round(uv_index) if uv_index else 6
             uv = st.session_state["cached_uv"]
             bm = calculate_burn_time(_fn, uv)
             rp = 120 if uv < 6 else 90 if uv < 9 else 60
