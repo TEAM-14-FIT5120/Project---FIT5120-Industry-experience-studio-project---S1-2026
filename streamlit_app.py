@@ -56,6 +56,9 @@ st.markdown("""
     background: linear-gradient(180deg, #fffaf5 0%, #fffdf8 55%, #ffffff 100%);
     }
 
+    div[class*="st-key-getLocation"] {
+        display: none !important;
+    }
     .stButton > button {
     background: white;
     color: #334155;
