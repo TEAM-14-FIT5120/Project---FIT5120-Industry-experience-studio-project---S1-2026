@@ -172,7 +172,9 @@ st.markdown("""
 
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
-
+    h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
+    display: none !important;
+    }
     [data-testid="stSidebar"] {
         display: none;
     }
@@ -243,7 +245,7 @@ Smart UV Safety Platform for Young Australians
 </div>
 <div style="display: flex; align-items: center; gap: 0.45rem; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 0.52rem 0.82rem; border-radius: 999px; font-size: 0.84rem; font-weight: 600; white-space: nowrap; backdrop-filter: blur(6px);">
 <span style="width: 8px; height: 8px; border-radius: 50%; background: #86efac; display: inline-block;"></span>
-Melbourne, Australia
+Live UV Updates
 </div>
 </div>
 """, unsafe_allow_html=True)

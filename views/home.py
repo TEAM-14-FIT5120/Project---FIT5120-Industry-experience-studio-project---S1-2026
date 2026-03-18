@@ -1,5 +1,5 @@
 import streamlit as st
-from views.get_live_uv import get_weather_data,get_uv_protection_window
+from views.get_live_uv import get_weather_data, get_uv_protection_window
 from datetime import datetime
 
 def get_uv_style(uv):
@@ -24,35 +24,116 @@ def get_uv_warning(uv):
     elif uv <= 10:
         return "Very High UV – reduce sun exposure between 10 AM and 4 PM."
     else:
-        return "Extreme UV – avoid outdoor activities during peak hours."    
-    
-def render(weather_data):
+        return "Extreme UV – avoid outdoor activities during peak hours."
+
+def render():
+    st.markdown("""
+    <style>
+    .block-container {
+        padding-top: 1rem !important;
+    }
+    iframe {
+        height: 0px !important;
+        border: none !important;
+    }
+    header {
+        visibility: hidden;
+        height: 0px;
+    }
+    [data-testid="stAppViewContainer"] > .main {
+        padding-top: 0rem;
+    }
+    </style>
+    """, unsafe_allow_html=True)
     # Top spacing
     st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
 
-    # Location
-    st.markdown("""
-    <div style='text-align: center; margin: 1rem 0 1.5rem 0;'>
-        <p style='color: #6b7280; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 1rem; margin: 0;'>
-            <span style='width: 10px; height: 10px; background: #22c55e; border-radius: 50%; display: inline-block;'></span>
-            Melbourne, Australia
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
-    
+    if "active_location_query" not in st.session_state:
+        st.session_state.active_location_query = None
+
+    st.markdown("### Search location")
+
+    col_input, col_btn, col_current = st.columns([6, 1.2, 1.8])
+
+    with col_input:
+        location_query = st.text_input(
+            "Search location",
+            value=st.session_state.active_location_query or "",
+            placeholder="Enter suburb or city, e.g. Clayton, VIC",
+            label_visibility="collapsed"
+        )
+
+    with col_btn:
+        search_clicked = st.button("Search", use_container_width=True)
+
+    with col_current:
+        current_clicked = st.button("Current", use_container_width=True)
+
+    if search_clicked:
+        cleaned_query = location_query.strip()
+        st.session_state.active_location_query = cleaned_query if cleaned_query else None
+
+    if current_clicked:
+        st.session_state.active_location_query = None
+
+    weather_data = get_weather_data(
+        location_query=st.session_state.active_location_query
+    )
+
     if weather_data:
         uv_index = weather_data.get('current', {}).get('uvi', 0)
-        hourly_data = weather_data.get('hourly', [])
-        
-        # 3. Get the Protection Window (using our new logic)
         start_time, end_time = get_uv_protection_window(weather_data)
-        
+        location_name = weather_data.get("display_location", "Melbourne, VIC")
+        used_default_location = weather_data.get("used_default_location", True)
+        location_error = weather_data.get("location_error")
     else:
         uv_index = 0
         start_time, end_time = None, None
+        location_name = "Melbourne, VIC"
+        used_default_location = True
+        location_error = None
+    
+    if location_error == "Location not found":
+        st.warning("Location not found. Showing default location.")
+    elif location_error and used_default_location:
+        st.info("Using default location.")
 
     uv_index = round(uv_index) if uv_index is not None else 0
-    
+
+    peak_uv_text = (
+        f"{start_time} – {end_time}"
+        if start_time and end_time
+        else start_time or "Unavailable"
+    )
+
+    if used_default_location and not st.session_state.active_location_query:
+        location_name = f"{location_name} (default)"
+    # Location
+    st.markdown(f"""
+    <div style='text-align: center; margin: 0.8rem 0 1.6rem 0;'>
+        <div style='
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.72rem 1.15rem;
+            background: rgba(255,255,255,0.9);
+            border: 1px solid rgba(148,163,184,0.16);
+            border-radius: 999px;
+            box-shadow: 0 8px 24px rgba(15,23,42,0.06);
+        '>
+            <span style='font-size: 1rem;'>📍</span>
+            <span style='
+                color: #475569;
+                font-size: 1.02rem;
+                font-weight: 600;
+                letter-spacing: -0.01em;
+            '>
+                {location_name}
+            </span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
     # UV gauge centered
     uv_color, uv_level = get_uv_style(uv_index)
     uv_warning = get_uv_warning(uv_index)
@@ -156,7 +237,7 @@ def render(weather_data):
                 {uv_warning}
             </p>
             <ul style='color: #6b7280; padding-left: 1.2rem; margin-bottom: 0;'>
-                <li>Peak UV hours: {start_time} – {end_time}</li>
+                <li>Peak UV hours: {peak_uv_text}</li>
                 <li>Recommended SPF: 30+</li>
                 <li>Reapply sunscreen every 2 hours</li>
             </ul>
