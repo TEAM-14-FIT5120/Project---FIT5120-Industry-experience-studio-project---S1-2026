@@ -8,7 +8,8 @@ st.title("Live UV & Temperature Monitor")
 
 def get_weather_data():
     location = get_geolocation()
-
+    lat = -37.8136
+    lon = 144.9631
     if(
     location
     and isinstance(location, dict)
@@ -25,12 +26,15 @@ def get_weather_data():
         uv_url = f"https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&exclude={exclude}&appid={api_key}&units=metric"
         
         try:
-            response = requests.get(uv_url).json()
-            if "current" in response:
-                return response
+            response = requests.get(uv_url, timeout=10)
+            response.raise_for_status()
+            data = response.json()
+            if "current" in data:
+                return data
+            return None
         except Exception as e:
             st.error(f"API Error: {e}")
-    return None
+            return None
 
 def get_uv_protection_window(weather_data):
     if not weather_data or 'hourly' not in weather_data:
