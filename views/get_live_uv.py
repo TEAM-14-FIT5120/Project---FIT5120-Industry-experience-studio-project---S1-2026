@@ -20,7 +20,10 @@ def reverse_geocode_location(lat, lon):
         response.raise_for_status()
         data = response.json()
 
+        st.write("DEBUG reverse geocode data:", data)
+
         address = data.get("address", {})
+        st.write("DEBUG address:", address)
 
         suburb = (
             address.get("suburb")
@@ -57,7 +60,8 @@ def reverse_geocode_location(lat, lon):
 
         return "Current Location"
 
-    except Exception:
+    except Exception as e:
+        st.write("DEBUG reverse geocode error:", str(e))
         return "Current Location"
     
 
