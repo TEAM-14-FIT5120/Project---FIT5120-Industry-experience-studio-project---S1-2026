@@ -144,7 +144,9 @@ st.markdown("""
 
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
-
+    h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
+    display: none !important;
+    }
     [data-testid="stSidebar"] {
         display: none;
     }
