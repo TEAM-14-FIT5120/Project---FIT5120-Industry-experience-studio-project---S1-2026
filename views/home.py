@@ -1,5 +1,5 @@
 import streamlit as st
-from views.get_live_uv import get_weather_data,get_uv_protection_window
+from views.get_live_uv import get_weather_data, get_uv_protection_window
 from datetime import datetime
 
 def get_uv_style(uv):
@@ -26,49 +26,62 @@ def get_uv_warning(uv):
     else:
         return "Extreme UV – avoid outdoor activities during peak hours."
 
-def get_display_location(weather_data):
-    if not weather_data:
-        return "Melbourne, Australia"
-
-    # If your API/reverse geolocation later provides a city name, use it here
-    if "timezone" in weather_data and weather_data["timezone"]:
-        timezone_name = weather_data["timezone"]  # e.g. Australia/Melbourne
-        parts = timezone_name.split("/")
-        if len(parts) >= 2:
-            city = parts[-1].replace("_", " ")
-            country_or_region = parts[0].replace("_", " ")
-            return f"{city}, {country_or_region}"
-
-    return "Current Location"
-
 def render():
-    # Top spacing
-    st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
-
-    # Location
     st.markdown("""
-    <div style='text-align: center; margin: 1rem 0 1.5rem 0;'>
-        <p style='color: #6b7280; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 1rem; margin: 0;'>
-            <span style='width: 10px; height: 10px; background: #22c55e; border-radius: 50%; display: inline-block;'></span>
-            Melbourne, Australia
-        </p>
-    </div>
+    <style>
+    .block-container {
+        padding-top: 1rem !important;
+    }
+    iframe {
+        height: 0px !important;
+        border: none !important;
+    }
+    header {
+        visibility: hidden;
+        height: 0px;
+    }
+    [data-testid="stAppViewContainer"] > .main {
+        padding-top: 0rem;
+    }
+    </style>
     """, unsafe_allow_html=True)
-    
+    # Top spacing
     weather_data = get_weather_data()
     if weather_data:
         uv_index = weather_data.get('current', {}).get('uvi', 0)
-        hourly_data = weather_data.get('hourly', [])
-        
-        # 3. Get the Protection Window (using our new logic)
         start_time, end_time = get_uv_protection_window(weather_data)
-        
+        location_name = weather_data.get("display_location", "Melbourne, Australia")
+        used_default_location = weather_data.get("used_default_location", True)
     else:
         uv_index = 0
         start_time, end_time = None, None
+        location_name = "Melbourne, Australia"
+        used_default_location = True
+    location_error = weather_data.get("location_error") if weather_data else None
+
+    if location_error:
+        st.warning(f"Location access not granted. Showing default location.")
 
     uv_index = round(uv_index) if uv_index is not None else 0
-    
+
+    peak_uv_text = (
+        f"{start_time} – {end_time}"
+        if start_time and end_time
+        else start_time or "Unavailable"
+    )
+
+    if used_default_location:
+        location_name = f"{location_name} (default)"
+    # Location
+    st.markdown(f"""
+    <div style='text-align: center; margin: 1rem 0 1.5rem 0;'>
+        <p style='color: #6b7280; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 1rem; margin: 0;'>
+            <span style='width: 10px; height: 10px; background: #22c55e; border-radius: 50%; display: inline-block;'></span>
+            {location_name}
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
     # UV gauge centered
     uv_color, uv_level = get_uv_style(uv_index)
     uv_warning = get_uv_warning(uv_index)
@@ -172,7 +185,7 @@ def render():
                 {uv_warning}
             </p>
             <ul style='color: #6b7280; padding-left: 1.2rem; margin-bottom: 0;'>
-                <li>Peak UV hours: {start_time} – {end_time}</li>
+                <li>Peak UV hours: {peak_uv_text}</li>
                 <li>Recommended SPF: 30+</li>
                 <li>Reapply sunscreen every 2 hours</li>
             </ul>

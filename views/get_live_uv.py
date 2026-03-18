@@ -1,47 +1,133 @@
 import streamlit as st
 import requests
-from streamlit_js_eval import get_geolocation
+from streamlit_js_eval import streamlit_js_eval
 from datetime import datetime
-from geopy.geocoders import Nominatim
 
 
-def get_location_name(lat, lon):
+def reverse_geocode_location(lat, lon):
+    url = "https://nominatim.openstreetmap.org/reverse"
+    params = {
+        "lat": lat,
+        "lon": lon,
+        "format": "jsonv2",
+        "addressdetails": 1
+    }
+    headers = {
+        "User-Agent": "uvsense_app"
+    }
+
     try:
-        geolocator = Nominatim(user_agent="uvsense_app")
-        location = geolocator.reverse((lat, lon), language="en")
-        if location and location.raw.get("address"):
-            address = location.raw["address"]
-            city = (
-                address.get("city")
-                or address.get("town")
-                or address.get("suburb")
-                or address.get("village")
-                or "Current Location"
-            )
-            country = address.get("country", "Australia")
-            return f"{city}, {country}"
+        response = requests.get(url, params=params, headers=headers, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+
+        address = data.get("address", {})
+
+        suburb = (
+            address.get("suburb")
+            or address.get("city_district")
+            or address.get("neighbourhood")
+            or address.get("quarter")
+            or address.get("town")
+            or address.get("city")
+            or address.get("village")
+            or "Current Location"
+        )
+
+        state = address.get("state", "")
+        country = address.get("country", "Australia")
+
+        state_map = {
+            "Victoria": "VIC",
+            "New South Wales": "NSW",
+            "Queensland": "QLD",
+            "South Australia": "SA",
+            "Western Australia": "WA",
+            "Tasmania": "TAS",
+            "Northern Territory": "NT",
+            "Australian Capital Territory": "ACT"
+        }
+
+        state_abbr = state_map.get(state, state)
+
+        if suburb and state_abbr:
+            return f"{suburb}, {state_abbr}"
+
+        if suburb and country:
+            return f"{suburb}, {country}"
+
+        return "Current Location"
+
     except Exception:
-        pass
-    return "Melbourne, Australia"
+        return "Melbourne, VIC"
+
+
+def get_browser_location():
+    if "browser_location" not in st.session_state:
+        st.session_state["browser_location"] = None
+    if "location_attempted" not in st.session_state:
+        st.session_state["location_attempted"] = False
+
+    if st.session_state["browser_location"] is None and not st.session_state["location_attempted"]:
+        result = streamlit_js_eval(
+            js_expressions="""
+            new Promise((resolve) => {
+                if (!navigator.geolocation) {
+                    resolve({
+                        success: false,
+                        error_message: "Geolocation is not supported by this browser."
+                    });
+                    return;
+                }
+
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        resolve({
+                            success: true,
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude,
+                            accuracy: position.coords.accuracy
+                        });
+                    },
+                    (error) => {
+                        resolve({
+                            success: false,
+                            error_message: error.message
+                        });
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            })
+            """,
+            key="auto_geo_js"
+        )
+
+        if result is not None:
+            st.session_state["browser_location"] = result
+            st.session_state["location_attempted"] = True
+
+    return st.session_state["browser_location"]
 
 
 def get_weather_data():
-    location = get_geolocation()
+    location = get_browser_location()
 
-    # Default fallback: Melbourne
     lat = -37.8136
     lon = 144.9631
+    used_default_location = True
+    location_error = None
 
-    if (
-        location
-        and isinstance(location, dict)
-        and "coords" in location
-        and location["coords"]
-        and "latitude" in location["coords"]
-        and "longitude" in location["coords"]
-    ):
-        lat = location["coords"]["latitude"]
-        lon = location["coords"]["longitude"]
+    if location and isinstance(location, dict):
+        if location.get("success") is True:
+            lat = location.get("latitude", lat)
+            lon = location.get("longitude", lon)
+            used_default_location = False
+        else:
+            location_error = location.get("error_message", "Location access failed.")
 
     api_key = st.secrets["api_keys"]["openweather"]
     exclude = "minutely,daily,alerts"
@@ -56,7 +142,9 @@ def get_weather_data():
         data = response.json()
 
         if "current" in data:
-            data["display_location"] = get_location_name(lat, lon)
+            data["used_default_location"] = used_default_location
+            data["location_error"] = location_error
+            data["display_location"] = reverse_geocode_location(lat, lon)
             return data
         return None
 
@@ -66,22 +154,23 @@ def get_weather_data():
 
 
 def get_uv_protection_window(weather_data):
-    if not weather_data or 'hourly' not in weather_data:
+    if not weather_data or "hourly" not in weather_data:
         return None, None
 
     high_uv_hours = [
-        hour for hour in weather_data['hourly'][:24]
-        if hour.get('uvi', 0) >= 3
+        hour for hour in weather_data["hourly"][:24]
+        if hour.get("uvi", 0) >= 3
     ]
 
     if not high_uv_hours:
         return "No protection required today", ""
 
-    start_ts = high_uv_hours[0]['dt']
-    end_ts = high_uv_hours[-1]['dt']
+    start_ts = high_uv_hours[0]["dt"]
+    end_ts = high_uv_hours[-1]["dt"]
 
-    start_time = datetime.fromtimestamp(start_ts).strftime('%I:%M %p').lstrip('0')
-    end_time = datetime.fromtimestamp(end_ts).strftime('%I:%M %p').lstrip('0')
+    timezone_offset = weather_data.get("timezone_offset", 0)
+
+    start_time = datetime.fromtimestamp(start_ts + timezone_offset).strftime("%I:%M %p").lstrip("0")
+    end_time = datetime.fromtimestamp(end_ts + timezone_offset).strftime("%I:%M %p").lstrip("0")
 
     return start_time, end_time
-
