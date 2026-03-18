@@ -75,6 +75,8 @@ def render(weather_data):
 
     if current_clicked:
         st.session_state.active_location_query = None
+        st.session_state["browser_location"] = None
+        st.session_state["location_attempted"] = False
 
     weather_data = get_weather_data(
         location_query=st.session_state.active_location_query
