@@ -1,8 +1,31 @@
 import streamlit as st
-from views.get_live_uv import get_weather_data
+from views.get_live_uv import get_weather_data,get_uv_protection_window
+from datetime import datetime
 
-
-
+def get_uv_style(uv):
+    if uv <= 2:
+        return "#22c55e", "Low"
+    elif uv <= 5:
+        return "#eab308", "Moderate"
+    elif uv <= 7:
+        return "#f97316", "High"
+    elif uv <= 10:
+        return "#ef4444", "Very High"
+    else:
+        return "#a855f7", "Extreme"
+    
+def get_uv_warning(uv):
+    if uv <= 2:
+        return "Low UV – minimal protection required. Enjoy your day outdoors."
+    elif uv <= 5:
+        return "Moderate UV – wear sunscreen and sunglasses when outdoors."
+    elif uv <= 7:
+        return "High UV – wear SPF30+ sunscreen, a hat and sunglasses."
+    elif uv <= 10:
+        return "Very High UV – reduce sun exposure between 10 AM and 4 PM."
+    else:
+        return "Extreme UV – avoid outdoor activities during peak hours."    
+    
 def render(weather_data):
     # Top spacing
     st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
@@ -18,42 +41,40 @@ def render(weather_data):
     """, unsafe_allow_html=True)
     
     if weather_data:
-        uv_val = weather_data.get('uvi')
-    else:
-        uv_val = 0
+        uv_index = weather_data.get('current', {}).get('uvi', 0)
+        hourly_data = weather_data.get('hourly', [])
         
-    uv_val = round(uv_val) if uv_val is not None else 0
+        # 3. Get the Protection Window (using our new logic)
+        start_time, end_time = get_uv_protection_window(weather_data)
+        
+    else:
+        uv_index = 0
+        start_time, end_time = None, None
 
-    def get_uv_status(uv_val):
-        if uv_val >= 11:
-            return "Extreme", "#9b59b6"  # Purple
-        elif uv_val >= 8:
-            return "Very High", "#e74c3c" # Red
-        elif uv_val >= 6:
-            return "High", "#e67e22"      # Orange
-        elif uv_val >= 3:
-            return "Moderate", "#f1c40f"  # Yellow
-        else:
-            return "Low", "#2ecc71"
+    uv_index = round(uv_index) if uv_index is not None else 0
     
+    # UV gauge centered
+    uv_color, uv_level = get_uv_style(uv_index)
+    uv_warning = get_uv_warning(uv_index)
+
     # UV gauge centered
     center_col = st.columns([1, 2, 1])[1]
     with center_col:
         st.markdown(f"""
-        <div style='display: flex; justify-content: center; margin-bottom: 1.5rem;'>
-            <div class='uv-gauge' style='border: 8px solid {get_uv_status(uv_val)[1]};'>
-                <div style='font-size: 2.5rem; line-height: 1;'>☀️</div>
-                <p class='uv-number' style='color: {get_uv_status(uv_val)[1]};'>{uv_val}</p>
-                <p class='uv-label'>UV Index</p>
-                <p class='uv-level' style='color: {get_uv_status(uv_val)[1]};'>{get_uv_status(uv_val)[0]}</p>
+        <div style='display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 1.5rem;'>
+            <div style='border: 8px solid {uv_color}; width: 180px; height: 180px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1);'>
+                <div style='font-size: 2rem; line-height: 1;'>☀️</div>
+                <p style='font-size: 3.5rem; font-weight: bold; color: {uv_color}; margin: 0; line-height: 1;'>{uv_index}</p>
+                <p style='font-size: 0.8rem; color: #6b7280; margin: 0; text-transform: uppercase;'>UV Index</p>
+                <p style='font-size: 1.1rem; font-weight: bold; color: {uv_color}; margin: 0;'>{uv_level}</p>
             </div>
         </div>
         """, unsafe_allow_html=True)
 
     # Warning banner
-    st.markdown("""
-    <div class='warning-banner'>
-        ⚠️ High UV – skin damage may occur quickly. Minimise sun exposure from 10 AM to 4 PM.
+    st.markdown(f"""
+    <div class='warning-banner' style='background: {uv_color};'>
+        ⚠️ {uv_warning}
     </div>
     """, unsafe_allow_html=True)
 
@@ -128,14 +149,14 @@ def render(weather_data):
     info1, info2 = st.columns(2, gap="large")
 
     with info1:
-        st.markdown("""
+        st.markdown(f"""
         <div class='card'>
             <h3 style='margin-top: 0; color: #1f2937;'>Today's UV Summary</h3>
             <p style='color: #6b7280; margin-bottom: 0.5rem;'>
-                UV levels are high today in Melbourne. Outdoor protection is strongly recommended.
+                {uv_warning}
             </p>
             <ul style='color: #6b7280; padding-left: 1.2rem; margin-bottom: 0;'>
-                <li>Peak UV hours: 10:00 AM – 4:00 PM</li>
+                <li>Peak UV hours: {start_time} – {end_time}</li>
                 <li>Recommended SPF: 30+</li>
                 <li>Reapply sunscreen every 2 hours</li>
             </ul>
@@ -156,3 +177,33 @@ def render(weather_data):
             </ul>
         </div>
         """, unsafe_allow_html=True)
+        st.markdown("<div style='margin: 2.5rem 0 1rem 0;'></div>", unsafe_allow_html=True)
+
+    # CTA section
+    cta_left, cta_center, cta_right = st.columns([0.12, 0.76, 0.12])
+
+    with cta_center:
+        st.markdown("""
+        <div class='card' style='text-align: center; border: 1px solid #fdba74; background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);'>
+            <div style='width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+                        display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; font-size: 1.6rem; color: white;
+                        box-shadow: 0 6px 16px rgba(249,115,22,0.22);'>
+                🧴
+            </div>
+            <div style='color:#9a3412; font-size:0.9rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; margin-bottom:0.35rem;'>
+                Personalised Advice
+            </div>
+            <div style='color:#1f2937; font-size:2rem; font-weight:800; margin:0 0 0.6rem 0;'>
+                Not sure about your skin type?
+            </div>
+            <div style='color:#6b7280; font-size:1rem; line-height:1.7; max-width:560px; margin:0 auto;'>
+                Try our Skin Type Tool to discover your skin type and get sun protection advice tailored to you.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        st.markdown("<div style='margin-top: 1.5rem;'></div>", unsafe_allow_html=True)
+        btn_left, btn_center, btn_right = st.columns([0.22, 0.56, 0.22])
+        with btn_center:
+            if st.button("Try Skin Type Tool", use_container_width=True, key="skin_type_cta"):
+                st.query_params["page"] = "skin-type-tool"
+                st.rerun()

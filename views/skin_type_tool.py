@@ -132,3 +132,4 @@ def render():
     with col2:
         st.markdown("**Type V-VI (Dark Skin)**\n- Rarely burns\n- Lower but present risk\n- Still needs protection")
         st.markdown("**Important**\n- All skin types can get skin cancer\n- Regular skin checks recommended")
+
