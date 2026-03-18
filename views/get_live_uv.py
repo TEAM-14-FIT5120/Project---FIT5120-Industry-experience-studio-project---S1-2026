@@ -59,6 +59,7 @@ def reverse_geocode_location(lat, lon):
 
     except Exception:
         return "Melbourne, VIC"
+    
 
 
 def get_browser_location():
@@ -224,35 +225,31 @@ def get_weather_data(location_query=None):
     display_location = "Melbourne, VIC"
 
     # 1. Search overrides auto-location
-    if location_query:
-        place = geocode_location(location_query)
-
-        if place and place.get("lat") is not None and place.get("lon") is not None:
-            lat = place["lat"]
-            lon = place["lon"]
-            used_default_location = False
-
-            if place.get("name") and place.get("state"):
-                display_location = f"{place['name']}, {place['state']}"
-            elif place.get("name") and place.get("country"):
-                display_location = f"{place['name']}, {place['country']}"
+    if isinstance(location_query, str) and location_query.strip():
+            place = geocode_location(location_query)
+            if place:
+                lat, lon = place["lat"], place["lon"]
+                used_default_location = False
+                display_location = f"{place['name']}, {place.get('state', '')}"
             else:
-                display_location = place.get("name", "Selected Location")
-        else:
-            location_error = "Location not found"
+                location_error = "Location not found"
 
-    # 2. If no search, use browser location
-    else:
-        location = get_browser_location()
+        # CASE 2: location_query is a DICTIONARY (From your get_browser_location function)
+    elif isinstance(location_query, dict) and location_query.get("success"):
+            lat = location_query.get("latitude", lat)
+            lon = location_query.get("longitude", lon)
+            used_default_location = False
+            # We use the reverse geocoder to turn lat/lon into a readable name like "Clayton, VIC"
+            display_location = reverse_geocode_location(lat, lon)
 
-        if location and isinstance(location, dict):
-            if location.get("success") is True:
-                lat = location.get("latitude", lat)
-                lon = location.get("longitude", lon)
+        # CASE 3: No query provided, try to auto-fetch from session state
+    elif location_query is None:
+            browser_geo = get_browser_location()
+            if browser_geo and isinstance(browser_geo, dict) and browser_geo.get("success"):
+                lat = browser_geo.get("latitude", lat)
+                lon = browser_geo.get("longitude", lon)
                 used_default_location = False
                 display_location = reverse_geocode_location(lat, lon)
-            else:
-                location_error = location.get("error_message", "Location access failed.")
 
     api_key = st.secrets["api_keys"]["openweather"]
     exclude = "minutely,daily,alerts"

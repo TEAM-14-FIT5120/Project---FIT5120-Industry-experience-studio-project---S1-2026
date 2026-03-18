@@ -26,7 +26,7 @@ def get_uv_warning(uv):
     else:
         return "Extreme UV – avoid outdoor activities during peak hours."
 
-def render():
+def render(weather_data):
     st.markdown("""
     <style>
     .block-container {

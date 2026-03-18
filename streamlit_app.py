@@ -256,7 +256,7 @@ render_top_nav(st.session_state.page)
 st.markdown("<div style='margin-bottom: 1.5rem;'></div>", unsafe_allow_html=True)
 
 page = st.session_state.page
-user_location = get_geolocation(key="uvsense_geo_location")
+user_location = get_geolocation()
 
 weather_data = None
 if user_location:
