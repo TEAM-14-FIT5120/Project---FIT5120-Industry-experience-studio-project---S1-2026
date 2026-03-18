@@ -175,6 +175,14 @@ def render():
         st.plotly_chart(fig, use_container_width=True)
 
         max_uv = max(uv_values)
+        if max_uv >= 8:
+            prep_minutes = 30
+        elif max_uv >= 6:
+            prep_minutes = 20
+        elif max_uv >= 3:
+            prep_minutes = 15
+        else:
+            prep_minutes = 10
         peak_time = hours[uv_values.index(max_uv)]
 
         if max_uv >= 8:
@@ -189,11 +197,13 @@ def render():
         st.markdown("### 🛡️ Your Protection Schedule")
 
         st.markdown("**Before You Go:**")
+        prep_time = start_datetime - timedelta(minutes=prep_minutes)
+
         st.markdown(f"""
         <div style='background: #f0fdf4; border-left: 3px solid #22c55e;
-             padding: 1rem; margin: 0.75rem 0; border-radius: 8px;'>
-            <strong>{(start_datetime - timedelta(minutes=30)).strftime("%I:%M %p")}</strong> -
-            Apply sunscreen 30 minutes before going outside
+            padding: 1rem; margin: 0.75rem 0; border-radius: 8px;'>
+            <strong>{prep_time.strftime("%I:%M %p")}</strong> -
+            Apply sunscreen {prep_minutes} minutes before going outside
         </div>
         """, unsafe_allow_html=True)
 
