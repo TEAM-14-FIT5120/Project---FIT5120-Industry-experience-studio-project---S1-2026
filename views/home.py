@@ -48,7 +48,7 @@ def render():
     # Top spacing
     st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
 
-    st.markdown("### Search another location")
+    st.markdown("### Search location")
     location_query = st.text_input(
         "Search location",
         placeholder="Enter suburb or city, e.g. Clayton, VIC",
@@ -88,11 +88,27 @@ def render():
         location_name = f"{location_name} (default)"
     # Location
     st.markdown(f"""
-    <div style='text-align: center; margin: 1rem 0 1.5rem 0;'>
-        <p style='color: #6b7280; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 1rem; margin: 0;'>
-            <span style='width: 10px; height: 10px; background: #22c55e; border-radius: 50%; display: inline-block;'></span>
-            {location_name}
-        </p>
+    <div style='text-align: center; margin: 0.8rem 0 1.6rem 0;'>
+        <div style='
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.72rem 1.15rem;
+            background: rgba(255,255,255,0.9);
+            border: 1px solid rgba(148,163,184,0.16);
+            border-radius: 999px;
+            box-shadow: 0 8px 24px rgba(15,23,42,0.06);
+        '>
+            <span style='font-size: 1rem;'>📍</span>
+            <span style='
+                color: #475569;
+                font-size: 1.02rem;
+                font-weight: 600;
+                letter-spacing: -0.01em;
+            '>
+                {location_name}
+            </span>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
