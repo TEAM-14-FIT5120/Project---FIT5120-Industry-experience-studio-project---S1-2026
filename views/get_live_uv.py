@@ -114,19 +114,22 @@ def get_browser_location():
 
 
 def normalize_query(query):
+    """
+    Enhance user query with Australian context for better geocoding results.
+    """
     q = query.strip()
     q_lower = q.lower()
 
-    # 如果用户已经写了 Australia / AU，就不补
-    if "australia" in q_lower or q_lower.endswith(", au"):
+    # Keep query unchanged if Australia is already specified
+    if "australia" in q_lower or ",au" in q_lower or ", au" in q_lower:
         return q
 
-    # 如果输入带 Melbourne，上下文补 Victoria, Australia
+    # If Melbourne is mentioned, strongly bias to Victoria, AU
     if "melbourne" in q_lower:
-        return f"{q}, Victoria, Australia"
+        return f"{q}, Victoria, AU"
 
-    # 默认补 Australia，优先澳洲结果
-    return f"{q}, Australia"
+    # Default: bias search to Australia using country code
+    return f"{q}, AU"
 
 
 def score_location(loc, user_query):
@@ -140,16 +143,13 @@ def score_location(loc, user_query):
     query_parts = [part.strip() for part in query.split(",") if part.strip()]
     primary_name = query_parts[0] if query_parts else query
 
-    # 1. country == AU 优先
+
     if country == "au":
         score += 100
 
-    # 2. state == Victoria 优先
     if state in ["victoria", "vic"]:
         score += 50
 
-    # 3. 名字最接近用户输入
-    # 完全一致 > startswith > contains
     if name == primary_name:
         score += 40
     elif name.startswith(primary_name):
@@ -157,7 +157,6 @@ def score_location(loc, user_query):
     elif primary_name in name:
         score += 15
 
-    # 4. 有 Melbourne 相关上下文的优先
     if "melbourne" in query:
         if state in ["victoria", "vic"]:
             score += 20

@@ -48,15 +48,36 @@ def render():
     # Top spacing
     st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
 
+    if "active_location_query" not in st.session_state:
+        st.session_state.active_location_query = None
+
     st.markdown("### Search location")
-    location_query = st.text_input(
-        "Search location",
-        placeholder="Enter suburb or city, e.g. Clayton, VIC",
-        label_visibility="collapsed"
-    )
+
+    col_input, col_btn, col_current = st.columns([6, 1.2, 1.8])
+
+    with col_input:
+        location_query = st.text_input(
+            "Search location",
+            value=st.session_state.active_location_query or "",
+            placeholder="Enter suburb or city, e.g. Clayton, VIC",
+            label_visibility="collapsed"
+        )
+
+    with col_btn:
+        search_clicked = st.button("Search", use_container_width=True)
+
+    with col_current:
+        current_clicked = st.button("Current", use_container_width=True)
+
+    if search_clicked:
+        cleaned_query = location_query.strip()
+        st.session_state.active_location_query = cleaned_query if cleaned_query else None
+
+    if current_clicked:
+        st.session_state.active_location_query = None
 
     weather_data = get_weather_data(
-        location_query=location_query.strip() if location_query.strip() else None
+        location_query=st.session_state.active_location_query
     )
     if weather_data:
         uv_index = weather_data.get('current', {}).get('uvi', 0)
@@ -84,7 +105,7 @@ def render():
         else start_time or "Unavailable"
     )
 
-    if used_default_location and not location_query.strip():
+    if used_default_location and not st.session_state.active_location_query:
         location_name = f"{location_name} (default)"
     # Location
     st.markdown(f"""
