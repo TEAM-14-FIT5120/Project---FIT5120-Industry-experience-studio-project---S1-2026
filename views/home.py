@@ -24,7 +24,23 @@ def get_uv_warning(uv):
     elif uv <= 10:
         return "Very High UV – reduce sun exposure between 10 AM and 4 PM."
     else:
-        return "Extreme UV – avoid outdoor activities during peak hours."    
+        return "Extreme UV – avoid outdoor activities during peak hours."
+
+def get_display_location(weather_data):
+    if not weather_data:
+        return "Melbourne, Australia"
+
+    # If your API/reverse geolocation later provides a city name, use it here
+    if "timezone" in weather_data and weather_data["timezone"]:
+        timezone_name = weather_data["timezone"]  # e.g. Australia/Melbourne
+        parts = timezone_name.split("/")
+        if len(parts) >= 2:
+            city = parts[-1].replace("_", " ")
+            country_or_region = parts[0].replace("_", " ")
+            return f"{city}, {country_or_region}"
+
+    return "Current Location"
+
 def render():
     # Top spacing
     st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
