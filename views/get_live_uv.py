@@ -58,7 +58,7 @@ def reverse_geocode_location(lat, lon):
         return "Current Location"
 
     except Exception:
-        return "Melbourne, VIC"
+        return "Current Location"
     
 
 
@@ -222,7 +222,7 @@ def get_weather_data(location_query=None):
     lon = 144.9631
     used_default_location = True
     location_error = None
-    display_location = "Melbourne, VIC"
+    display_location = "Detecting location..."
 
     # 1. Search overrides auto-location
     if isinstance(location_query, str) and location_query.strip():
@@ -246,10 +246,16 @@ def get_weather_data(location_query=None):
     elif location_query is None:
             browser_geo = get_browser_location()
             if browser_geo and isinstance(browser_geo, dict) and browser_geo.get("success"):
-                lat = browser_geo.get("latitude", lat)
-                lon = browser_geo.get("longitude", lon)
-                used_default_location = False
-                display_location = reverse_geocode_location(lat, lon)
+                browser_lat = browser_geo.get("latitude")
+                browser_lon = browser_geo.get("longitude")
+
+                if browser_lat is not None and browser_lon is not None:
+                    lat = browser_lat
+                    lon = browser_lon
+                    used_default_location = False
+                    display_location = reverse_geocode_location(lat, lon)
+                else:
+                    location_error = "Browser location missing coordinates"
 
     api_key = st.secrets["api_keys"]["openweather"]
     exclude = "minutely,daily,alerts"

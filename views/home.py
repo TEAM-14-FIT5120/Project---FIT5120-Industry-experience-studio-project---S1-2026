@@ -83,20 +83,20 @@ def render(weather_data):
     if weather_data:
         uv_index = weather_data.get('current', {}).get('uvi', 0)
         start_time, end_time = get_uv_protection_window(weather_data)
-        location_name = weather_data.get("display_location", "Melbourne, VIC")
+        location_name = weather_data.get("display_location", "Location unavailable")
         used_default_location = weather_data.get("used_default_location", True)
         location_error = weather_data.get("location_error")
     else:
         uv_index = 0
         start_time, end_time = None, None
-        location_name = "Melbourne, VIC"
+        location_name = "Location unavailable"
         used_default_location = True
         location_error = None
     
     if location_error == "Location not found":
         st.warning("Location not found. Showing default location.")
     elif location_error and used_default_location:
-        st.info("Using default location.")
+        st.info("Unable to detect your current location.")
 
     uv_index = round(uv_index) if uv_index is not None else 0
 
@@ -107,7 +107,7 @@ def render(weather_data):
     )
 
     if used_default_location and not st.session_state.active_location_query:
-        location_name = f"{location_name} (default)"
+        location_name = f"{location_name}"
     # Location
     st.markdown(f"""
     <div style='text-align: center; margin: 0.8rem 0 1.6rem 0;'>
