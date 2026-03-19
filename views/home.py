@@ -31,8 +31,8 @@ def render(weather_data):
     <style>
     /* 1. Target the top-most container padding */
     .block-container {
-        padding-top: 0rem !important;
-        margin-top: -2rem !important; /* Pulls content up into the empty header space */
+        padding-top: 1rem !important;
+        margin-top: 0rem !important; /* Pulls content up into the empty header space */
     }
 
     /* 2. Remove the margin from the 'Search location' text itself */
