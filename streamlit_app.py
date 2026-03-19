@@ -30,10 +30,6 @@ def hide_anchor_link():
                 display: none !important;
             }
             
-            /* Remove the hover effect that creates space for the icon */
-            h1, h2, h3, h4, h5, h6 {
-                pointer-events: none;
-            }
         </style>
         """,
         unsafe_allow_html=True,
@@ -53,9 +49,34 @@ PAGES = {
 st.markdown("""
 <style>
     .stApp {
-    background: linear-gradient(180deg, #fffaf5 0%, #fffdf8 55%, #ffffff 100%);
+        background: linear-gradient(180deg, #fffaf5 0%, #fffdf8 55%, #ffffff 100%);
+        color: #1f2937;
     }
 
+    html, body, [data-testid="stAppViewContainer"], [data-testid="stMarkdownContainer"] {
+        color: #1f2937 !important;
+    }
+
+    p, li, label, span, div {
+        color: #1f2937;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        color: #0f172a !important;
+    }
+
+    label[data-testid="stWidgetLabel"] p,
+    .stRadio label p,
+    .stMarkdown p,
+    .stTextInput label p,
+    .stSelectbox label p,
+    .stTextArea label p {
+        color: #1f2937 !important;
+    }
+
+    div[class*="st-key-getLocation"] {
+        display: none !important;
+    }
     .stButton > button {
     background: white;
     color: #334155;

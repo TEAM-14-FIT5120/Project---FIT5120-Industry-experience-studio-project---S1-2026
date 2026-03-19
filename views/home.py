@@ -55,8 +55,8 @@ def render(weather_data):
     """, unsafe_allow_html=True)
     
     
-    # # Top spacing
-    # st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
+    # Top spacing
+    st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
 
     if "active_location_query" not in st.session_state:
         st.session_state.active_location_query = None
@@ -80,38 +80,36 @@ def render(weather_data):
                 st.rerun() # This triggers streamlit_app.py to fetch new weather
 
     with col_current:
+
         if st.button("Current", use_container_width=True):
             st.session_state.active_location_query = None
             # This clears the search so streamlit_app.py uses GPS
             st.rerun()
-    weather_data = get_weather_data(
-        location_query=st.session_state.active_location_query
-    )
 
     if weather_data:
         uv_index = weather_data.get('current', {}).get('uvi', 0)
         start_time, end_time = get_uv_protection_window(weather_data)
-        location_name = weather_data.get("display_location", "Melbourne, VIC")
+        location_name = weather_data.get("display_location", "Location unavailable")
         used_default_location = weather_data.get("used_default_location", True)
         location_error = weather_data.get("location_error")
     else:
         uv_index = 0
         start_time, end_time = None, None
-        location_name = "Melbourne, VIC"
+        location_name = "Location unavailable"
         used_default_location = True
         location_error = None
     
     if location_error == "Location not found":
         st.warning("Location not found. Showing default location.")
     elif location_error and used_default_location:
-        st.info("Using default location.")
+        st.info("Unable to detect your current location.")
 
     uv_index = round(uv_index) if uv_index is not None else 0
 
     peak_uv_text = f"{start_time} – {end_time}" if start_time and end_time else "No protection needed"
 
     if used_default_location and not st.session_state.active_location_query:
-        location_name = f"{location_name} (default)"
+        location_name = f"{location_name}"
     # Location
     st.markdown(f"""
     <div style='text-align: center; margin: 0.8rem 0 1.6rem 0;'>

@@ -20,7 +20,6 @@ def reverse_geocode_location(lat, lon):
         response = requests.get(url, params=params, headers=headers, timeout=10)
         response.raise_for_status()
         data = response.json()
-
         address = data.get("address", {})
 
         suburb = (
@@ -59,15 +58,9 @@ def reverse_geocode_location(lat, lon):
         return "Current Location"
 
     except Exception:
-        return "Melbourne, VIC"
+        return "Current Location"
     
 
-
-# def get_browser_location():
-#     if "browser_location" not in st.session_state:
-#         st.session_state["browser_location"] = None
-#     if "location_attempted" not in st.session_state:
-#         st.session_state["location_attempted"] = False
 
 #     if st.session_state["browser_location"] is None and not st.session_state["location_attempted"]:
 #         result = streamlit_js_eval(
@@ -110,8 +103,6 @@ def reverse_geocode_location(lat, lon):
 #         if result is not None:
 #             st.session_state["browser_location"] = result
 #             st.session_state["location_attempted"] = True
-
-#     return st.session_state["browser_location"]
 
 
 def normalize_query(query):
@@ -223,11 +214,12 @@ def get_weather_data(location_query=None):
     lon = 144.9631
     used_default_location = True
     location_error = None
-    display_location = "Melbourne, VIC"
+    display_location = "Detecting location..."
 
-    # 1. Search overrides auto-location
+    # 1. User typed a location
     if isinstance(location_query, str) and location_query.strip():
         place = geocode_location(location_query)
+
         if place:
             lat, lon = place["lat"], place["lon"]
             used_default_location = False
