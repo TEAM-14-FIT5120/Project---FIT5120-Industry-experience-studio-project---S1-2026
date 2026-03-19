@@ -199,6 +199,19 @@ st.markdown("""
     [data-testid="stSidebar"] {
         display: none;
     }
+    
+    /* hide Hosted with Streamlit*/
+    a[href*="streamlit.io"] {
+        display: none !important;
+    }
+
+    a[href*="streamlit.app"] {
+        display: none !important;
+    }
+
+    div[data-testid="stStatusWidget"] {
+        display: none !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
