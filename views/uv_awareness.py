@@ -26,24 +26,18 @@ def render():
     """, unsafe_allow_html=True)
     
     # Skin Cancer Trends Chart
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
     
-    col1, col2 = st.columns([1, 12])
-    with col1:
-        st.markdown("""
-        <div style='width: 48px; height: 48px; background: linear-gradient(135deg, #f87171 0%, #f97316 100%); 
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;'>
-            <span style='color: white; font-size: 1.5rem;'>📈</span>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col2:
-        st.markdown("""
-        <h2 style='margin: 0;'>Melanoma Cases in Australia</h2>
-        <p style='color: #6b7280; font-size: 0.875rem; margin: 0.25rem 0 0 0;'>
-            Annual diagnosed cases showing upward trend
-        </p>
-        """, unsafe_allow_html=True)
+    st.markdown("""
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:1rem;">
+    <div style="width:48px;height:48px;background:linear-gradient(135deg,#f87171,#f97316);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:1.5rem;">
+    📈
+    </div>
+    <div>
+    <h2 style="margin:0;">Melanoma Cases in Australia</h2>
+    <p style="color:#6b7280;margin:0;">Annual diagnosed cases showing upward trend</p>
+    </div>
+    </div>
+    """, unsafe_allow_html=True)
     
     # Create line chart data
     
@@ -122,24 +116,18 @@ def render():
     st.markdown("<div style='margin: 2rem 0;'></div>", unsafe_allow_html=True)
     
     # UV Exposure Impact Chart
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
     
-    col1, col2 = st.columns([1, 12])
-    with col1:
-        st.markdown("""
-        <div style='width: 48px; height: 48px; background: linear-gradient(135deg, #fbbf24 0%, #f97316 100%); 
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;'>
-            <span style='color: white; font-size: 1.5rem;'>⚠️</span>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col2:
-        st.markdown("""
-        <h2 style='margin: 0;'>Statewise Sunburn Rates(2023-2024)</h2>
-        <p style='color: #6b7280; font-size: 0.875rem; margin: 0.25rem 0 0 0;'>
-            Percentage of young Australians experiencing sunburn
-        </p>
-        """, unsafe_allow_html=True)
+    st.markdown("""
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:1rem;">
+    <div style="width:48px;height:48px;background:linear-gradient(135deg,#fbbf24,#f97316);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:1.5rem;">
+    ⚠️
+    </div>
+    <div>
+    <h2 style="margin:0;">Statewise Sunburn Rates (2023-2024)</h2>
+    <p style="color:#6b7280;margin:0;">Percentage of young Australians experiencing sunburn</p>
+    </div>
+    </div>
+    """, unsafe_allow_html=True)
     
     # Create waffle chart data
     
