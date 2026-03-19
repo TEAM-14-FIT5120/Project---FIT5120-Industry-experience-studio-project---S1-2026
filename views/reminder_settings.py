@@ -26,39 +26,58 @@ def render():
         "></div>
         """, unsafe_allow_html=True)
 
-    # Enable reminders
+    saved = st.session_state.get("uv_alert_preferences_saved", {})
+
+    default_alerts_enabled = saved.get("alerts_enabled", True)
+    default_reapply_interval = saved.get("reapply_interval", 2)
+    default_start_time = time.fromisoformat(saved.get("start_time", "10:00:00"))
+    default_end_time = time.fromisoformat(saved.get("end_time", "16:00:00"))
+    default_uv_threshold = saved.get("uv_threshold", 8)
+
     st.markdown("### 🔔 Enable Reminders")
-    alerts_enabled = st.toggle("Turn on reminders", value=True, key="alerts_enabled")
+    alerts_enabled = st.toggle(
+        "Turn on reminders",
+        value=default_alerts_enabled,
+        key="alerts_enabled"
+    )
+
+    reapply_interval = default_reapply_interval
+    start_time = default_start_time
+    end_time = default_end_time
+    uv_threshold = default_uv_threshold
+    active_hours_valid = True
 
     if alerts_enabled:
-
         divider()
 
-        # Sunscreen reminder
         st.markdown("### 🧴 Sunscreen Reapplication")
+        interval_options = [1, 1.5, 2, 2.5, 3]
+        interval_index = interval_options.index(default_reapply_interval) if default_reapply_interval in interval_options else 2
+
         reapply_interval = st.selectbox(
             "Reminder interval",
-            options=[1, 1.5, 2, 2.5, 3],
-            index=2,
+            options=interval_options,
+            index=interval_index,
             format_func=lambda x: f"Every {x} hours",
             key="reapply_interval"
         )
 
         divider()
 
-        # Outdoor hours
         st.markdown("### ⏰ Outdoor Hours")
         col1, col2 = st.columns(2)
+
         with col1:
             start_time = st.time_input(
                 "Start time",
-                value=time(10, 0),
+                value=default_start_time,
                 key="start_time"
             )
+
         with col2:
             end_time = st.time_input(
                 "End time",
-                value=time(16, 0),
+                value=default_end_time,
                 key="end_time"
             )
 
@@ -68,30 +87,32 @@ def render():
 
         divider()
 
-        # UV threshold
         st.markdown("### ☀️ High UV Alert")
+        threshold_options = [6, 7, 8, 9, 10, 11]
+        threshold_index = threshold_options.index(default_uv_threshold) if default_uv_threshold in threshold_options else 2
+
         uv_threshold = st.selectbox(
             "Alert me when UV reaches",
-            options=[6, 7, 8, 9, 10, 11],
-            index=2,
+            options=threshold_options,
+            index=threshold_index,
             format_func=lambda x: f"UV Index {x}+",
             key="uv_threshold"
         )
 
-        st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
-
-        if st.button("💾 Save Settings", use_container_width=True, type="primary"):
-            if not active_hours_valid:
-                st.error("Please fix the time settings before saving.")
-            else:
-                st.session_state["uv_alert_preferences_saved"] = {
-                    "alerts_enabled": alerts_enabled,
-                    "reapply_interval": reapply_interval,
-                    "start_time": str(start_time),
-                    "end_time": str(end_time),
-                    "uv_threshold": uv_threshold
-                }
-                st.success("Your reminder settings have been saved.")
-
     else:
         st.info("Reminders are currently turned off.")
+
+    st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
+
+    if st.button("💾 Save Settings", use_container_width=True, type="primary"):
+        if alerts_enabled and not active_hours_valid:
+            st.error("Please fix the time settings before saving.")
+        else:
+            st.session_state["uv_alert_preferences_saved"] = {
+                "alerts_enabled": alerts_enabled,
+                "reapply_interval": reapply_interval,
+                "start_time": str(start_time),
+                "end_time": str(end_time),
+                "uv_threshold": uv_threshold
+            }
+            st.success("Your reminder settings have been saved.")
