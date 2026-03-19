@@ -38,6 +38,15 @@ def all_skin_types_chart(current_uv):
 
 def render(weather_data):
     st.title("Skin Type Protection Tool")
+    if "cached_uv" not in st.session_state:
+            st.session_state["cached_uv"] = 5  # Default fallback
+    if "quiz_done" not in st.session_state:
+            st.session_state["quiz_done"] = False
+        
+    # Update cached_uv if we have fresh weather data
+    if weather_data and "current" in weather_data:
+        st.session_state["cached_uv"] = round(weather_data["current"].get("uvi", 5))
+        
     st.markdown("<p style='font-size: 1.125rem; color: #6b7280; margin-bottom: 2rem;'>Answer a few questions to get personalized sun protection recommendations based on your skin type.</p>", unsafe_allow_html=True)
 
     st.markdown("#### 1. What is your natural skin color?")
@@ -87,12 +96,6 @@ def render(weather_data):
             _stn = st.session_state.skin_type_name
             _rl = st.session_state.risk_level
             _fn = st.session_state.fitzpatrick_num
-            # Use cached UV if available to avoid geolocation reset
-            if "cached_uv" not in st.session_state:
-                with st.spinner("Fetching live UV data..."):
-                        if weather_data:
-                            uv_index = weather_data.get('current', {}).get('uvi', 0)
-                        st.session_state["cached_uv"] = round(uv_index) if uv_index else 6
             uv = st.session_state["cached_uv"]
             bm = calculate_burn_time(_fn, uv)
             rp = 120 if uv < 6 else 90 if uv < 9 else 60

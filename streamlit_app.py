@@ -256,18 +256,23 @@ render_top_nav(st.session_state.page)
 st.markdown("<div style='margin-bottom: 1.5rem;'></div>", unsafe_allow_html=True)
 
 page = st.session_state.page
-user_location = get_geolocation()
 
-weather_data = None
-if user_location:
-    weather_data = get_weather_data(user_location)
+if "current_location" not in st.session_state:
+    st.session_state["current_location"] = None  # Could be a string or a dict
+
+# --- 2. GET BROWSER LOCATION (Auto-run once) ---
+browser_geo = get_geolocation() 
+if browser_geo and st.session_state["current_location"] is None:
+    st.session_state["current_location"] = browser_geo
+
+weather_data = get_weather_data(st.session_state["current_location"])
 
 
 if page == "dashboard":
     from views import home
     home.render(weather_data)
 elif page == "uv-awareness":
-    from views import uv_awareness
+    import views.uv_awareness as uv_awareness
     uv_awareness.render()
 elif page == "skin-type-tool":
     from views import skin_type_tool

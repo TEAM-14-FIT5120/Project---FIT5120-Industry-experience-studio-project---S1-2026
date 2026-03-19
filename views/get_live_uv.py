@@ -3,6 +3,7 @@ import requests
 from streamlit_js_eval import streamlit_js_eval
 from datetime import datetime
 
+@st.cache_data(ttl=3600)
 def reverse_geocode_location(lat, lon):
     url = "https://nominatim.openstreetmap.org/reverse"
     params = {
@@ -62,55 +63,55 @@ def reverse_geocode_location(lat, lon):
     
 
 
-def get_browser_location():
-    if "browser_location" not in st.session_state:
-        st.session_state["browser_location"] = None
-    if "location_attempted" not in st.session_state:
-        st.session_state["location_attempted"] = False
+# def get_browser_location():
+#     if "browser_location" not in st.session_state:
+#         st.session_state["browser_location"] = None
+#     if "location_attempted" not in st.session_state:
+#         st.session_state["location_attempted"] = False
 
-    if st.session_state["browser_location"] is None and not st.session_state["location_attempted"]:
-        result = streamlit_js_eval(
-            js_expressions="""
-            new Promise((resolve) => {
-                if (!navigator.geolocation) {
-                    resolve({
-                        success: false,
-                        error_message: "Geolocation is not supported by this browser."
-                    });
-                    return;
-                }
+#     if st.session_state["browser_location"] is None and not st.session_state["location_attempted"]:
+#         result = streamlit_js_eval(
+#             js_expressions="""
+#             new Promise((resolve) => {
+#                 if (!navigator.geolocation) {
+#                     resolve({
+#                         success: false,
+#                         error_message: "Geolocation is not supported by this browser."
+#                     });
+#                     return;
+#                 }
 
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        resolve({
-                            success: true,
-                            latitude: position.coords.latitude,
-                            longitude: position.coords.longitude,
-                            accuracy: position.coords.accuracy
-                        });
-                    },
-                    (error) => {
-                        resolve({
-                            success: false,
-                            error_message: error.message
-                        });
-                    },
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 10000,
-                        maximumAge: 0
-                    }
-                );
-            })
-            """,
-            key="auto_geo_js"
-        )
+#                 navigator.geolocation.getCurrentPosition(
+#                     (position) => {
+#                         resolve({
+#                             success: true,
+#                             latitude: position.coords.latitude,
+#                             longitude: position.coords.longitude,
+#                             accuracy: position.coords.accuracy
+#                         });
+#                     },
+#                     (error) => {
+#                         resolve({
+#                             success: false,
+#                             error_message: error.message
+#                         });
+#                     },
+#                     {
+#                         enableHighAccuracy: true,
+#                         timeout: 10000,
+#                         maximumAge: 0
+#                     }
+#                 );
+#             })
+#             """,
+#             key="auto_geo_js"
+#         )
 
-        if result is not None:
-            st.session_state["browser_location"] = result
-            st.session_state["location_attempted"] = True
+#         if result is not None:
+#             st.session_state["browser_location"] = result
+#             st.session_state["location_attempted"] = True
 
-    return st.session_state["browser_location"]
+#     return st.session_state["browser_location"]
 
 
 def normalize_query(query):
@@ -163,7 +164,7 @@ def score_location(loc, user_query):
 
     return score
 
-
+@st.cache_data(ttl=86400)
 def geocode_location(query):
     api_key = st.secrets["api_keys"]["openweather"]
     geo_url = "http://api.openweathermap.org/geo/1.0/direct"
@@ -216,7 +217,7 @@ def geocode_location(query):
     except Exception:
         return None
 
-
+@st.cache_data(ttl=600)
 def get_weather_data(location_query=None):
     lat = -37.8136
     lon = 144.9631
@@ -226,30 +227,38 @@ def get_weather_data(location_query=None):
 
     # 1. Search overrides auto-location
     if isinstance(location_query, str) and location_query.strip():
-            place = geocode_location(location_query)
-            if place:
-                lat, lon = place["lat"], place["lon"]
-                used_default_location = False
-                display_location = f"{place['name']}, {place.get('state', '')}"
-            else:
-                location_error = "Location not found"
+        place = geocode_location(location_query)
+        if place:
+            lat, lon = place["lat"], place["lon"]
+            used_default_location = False
+            display_location = f"{place['name']}, {place.get('state', '')}"
+        else:
+            location_error = "Location not found"
 
-        # CASE 2: location_query is a DICTIONARY (From your get_browser_location function)
-    elif isinstance(location_query, dict) and location_query.get("success"):
+    # CASE B: Input is a Dictionary (from get_geolocation or session state)
+    elif isinstance(location_query, dict):
+        # Handle the structure from streamlit-js-eval 'get_geolocation'
+        if "coords" in location_query:
+            lat = location_query["coords"].get("latitude", lat)
+            lon = location_query["coords"].get("longitude", lon)
+            used_default_location = False
+            display_location = reverse_geocode_location(lat, lon)
+        
+        # Handle your custom 'success' dictionary format
+        elif location_query.get("success"):
             lat = location_query.get("latitude", lat)
             lon = location_query.get("longitude", lon)
             used_default_location = False
-            # We use the reverse geocoder to turn lat/lon into a readable name like "Clayton, VIC"
             display_location = reverse_geocode_location(lat, lon)
 
-        # CASE 3: No query provided, try to auto-fetch from session state
-    elif location_query is None:
-            browser_geo = get_browser_location()
-            if browser_geo and isinstance(browser_geo, dict) and browser_geo.get("success"):
-                lat = browser_geo.get("latitude", lat)
-                lon = browser_geo.get("longitude", lon)
-                used_default_location = False
-                display_location = reverse_geocode_location(lat, lon)
+    # # CASE C: No query provided, try to auto-fetch from browser
+    # elif location_query is None:
+    #     browser_geo = get_browser_location()
+    #     if browser_geo and isinstance(browser_geo, dict) and browser_geo.get("success"):
+    #         lat = browser_geo.get("latitude", lat)
+    #         lon = browser_geo.get("longitude", lon)
+    #         used_default_location = False
+    #         display_location = reverse_geocode_location(lat, lon)
 
     api_key = st.secrets["api_keys"]["openweather"]
     exclude = "minutely,daily,alerts"

@@ -29,53 +29,61 @@ def get_uv_warning(uv):
 def render(weather_data):
     st.markdown("""
     <style>
+    /* 1. Target the top-most container padding */
     .block-container {
-        padding-top: 1rem !important;
+        padding-top: 0rem !important;
+        margin-top: -2rem !important; /* Pulls content up into the empty header space */
     }
-    iframe {
-        height: 0px !important;
-        border: none !important;
+
+    /* 2. Remove the margin from the 'Search location' text itself */
+    [data-testid="stMarkdownContainer"] h2, 
+    [data-testid="stMarkdownContainer"] h3 {
+        margin-top: 0rem !important;
+        padding-top: 0.5rem !important;
     }
-    header {
-        visibility: hidden;
-        height: 0px;
+
+    /* 3. Completely collapse the header area */
+    header[data-testid="stHeader"] {
+        display: none !important;
     }
-    [data-testid="stAppViewContainer"] > .main {
-        padding-top: 0rem;
+
+    /* 4. Optional: Reduce gap between elements globally if needed */
+    [data-testid="stVerticalBlock"] {
+        gap: 0.5rem !important;
     }
     </style>
     """, unsafe_allow_html=True)
-    # Top spacing
-    st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
+    
+    
+    # # Top spacing
+    # st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
 
     if "active_location_query" not in st.session_state:
         st.session_state.active_location_query = None
 
     st.markdown("### Search location")
-
     col_input, col_btn, col_current = st.columns([6, 1.2, 1.8])
 
     with col_input:
+        # We show what is currently in the session state
         location_query = st.text_input(
             "Search location",
-            value=st.session_state.active_location_query or "",
+            value=st.session_state.get("active_location_query", "") or "",
             placeholder="Enter suburb or city, e.g. Clayton, VIC",
             label_visibility="collapsed"
         )
 
     with col_btn:
-        search_clicked = st.button("Search", use_container_width=True)
+        if st.button("Search", use_container_width=True):
+            if location_query.strip():
+                st.session_state.active_location_query = location_query.strip()
+                st.rerun() # This triggers streamlit_app.py to fetch new weather
 
     with col_current:
-        current_clicked = st.button("Current", use_container_width=True)
-
-    if search_clicked:
-        cleaned_query = location_query.strip()
-        st.session_state.active_location_query = cleaned_query if cleaned_query else None
-
-    if current_clicked:
-        st.session_state.active_location_query = None
-
+        if st.button("Current", use_container_width=True):
+            st.session_state.active_location_query = None
+            # This clears the search so streamlit_app.py uses GPS
+            st.rerun()
     weather_data = get_weather_data(
         location_query=st.session_state.active_location_query
     )
@@ -100,11 +108,7 @@ def render(weather_data):
 
     uv_index = round(uv_index) if uv_index is not None else 0
 
-    peak_uv_text = (
-        f"{start_time} – {end_time}"
-        if start_time and end_time
-        else start_time or "Unavailable"
-    )
+    peak_uv_text = f"{start_time} – {end_time}" if start_time and end_time else "No protection needed"
 
     if used_default_location and not st.session_state.active_location_query:
         location_name = f"{location_name} (default)"
