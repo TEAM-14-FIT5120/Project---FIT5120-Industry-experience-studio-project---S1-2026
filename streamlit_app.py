@@ -14,6 +14,16 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed"
 )
+
+st.markdown("""
+    <style>
+    /* Hides the 'Running...' spinners and function execution labels */
+    [data-testid="stStatusWidget"], .stSpinner, [data-testid="stNotification"] {
+        visibility: hidden;
+        display: none;
+    }
+    </style>
+""", unsafe_allow_html=True)
 # ... (imports and set_page_config) ...
 
 def hide_anchor_link():
@@ -36,6 +46,32 @@ def hide_anchor_link():
     )
 
 hide_anchor_link()
+
+if "weather_cache" not in st.session_state:
+    st.session_state.weather_cache = None
+if "data_fetched" not in st.session_state:
+    st.session_state.data_fetched = False
+
+# --- 3. THE "LOCK" LOGIC ---
+# This block ONLY runs if we haven't successfully fetched data yet.
+# Once data_fetched is True, this is skipped entirely on every tab click.
+if not st.session_state.data_fetched:
+    manual_query = st.session_state.get("active_location_query")
+    
+    if manual_query:
+        # User searched for a city
+        st.session_state.weather_cache = get_weather_data(manual_query)
+        st.session_state.data_fetched = True
+    else:
+        # No search? Try Browser GPS
+        browser_geo = get_geolocation()
+        if browser_geo:
+            st.session_state.weather_cache = get_weather_data(browser_geo)
+            st.session_state.data_fetched = True
+            st.rerun()
+
+# --- 4. USE THE STABLE DATA ---
+weather_data = st.session_state.weather_cache
 
 PAGES = {
     "dashboard": "Dashboard",
@@ -277,17 +313,6 @@ render_top_nav(st.session_state.page)
 st.markdown("<div style='margin-bottom: 1.5rem;'></div>", unsafe_allow_html=True)
 
 page = st.session_state.page
-
-if "current_location" not in st.session_state:
-    st.session_state["current_location"] = None  # Could be a string or a dict
-
-# --- 2. GET BROWSER LOCATION (Auto-run once) ---
-browser_geo = get_geolocation() 
-if browser_geo and st.session_state["current_location"] is None:
-    st.session_state["current_location"] = browser_geo
-
-weather_data = get_weather_data(st.session_state["current_location"])
-
 
 if page == "dashboard":
     from views import home
