@@ -1,6 +1,7 @@
 import streamlit as st
 from views.get_live_uv import get_weather_data, get_uv_protection_window
 from datetime import datetime
+from views.reminder_logic import get_simulated_uv_reminders, render_reminder_card
 
 def get_uv_style(uv):
     if uv <= 2:
@@ -31,8 +32,8 @@ def render(weather_data):
     <style>
     /* 1. Target the top-most container padding */
     .block-container {
-        padding-top: 0rem !important;
-        margin-top: -2rem !important; /* Pulls content up into the empty header space */
+        padding-top: 1rem !important;
+        margin-top: 0rem !important; /* Pulls content up into the empty header space */
     }
 
     /* 2. Remove the margin from the 'Search location' text itself */
@@ -108,6 +109,36 @@ def render(weather_data):
     uv_index = round(uv_index) if uv_index is not None else 0
 
     peak_uv_text = f"{start_time} – {end_time}" if start_time and end_time else "No protection needed"
+
+    # Simulated reminder cards
+    preferences = st.session_state.get("uv_alert_preferences_saved", {})
+
+    reminders = get_simulated_uv_reminders(
+        current_uv=uv_index,
+        preferences=preferences,
+        session_state=st.session_state
+    )
+
+    for reminder in reminders:
+        if reminder["type"] == "uv":
+            render_reminder_card(
+                title=reminder["title"],
+                message=reminder["message"],
+                icon="☀️",
+                bg="#fef2f2",
+                border="#fca5a5"
+            )
+        elif reminder["type"] == "reapply":
+            render_reminder_card(
+                title=reminder["title"],
+                message=reminder["message"],
+                icon="🧴",
+                bg="#eff6ff",
+                border="#93c5fd"
+            )
+
+    if used_default_location and not st.session_state.active_location_query:
+        location_name = f"{location_name}"
 
     if used_default_location and not st.session_state.active_location_query:
         location_name = f"{location_name}"
