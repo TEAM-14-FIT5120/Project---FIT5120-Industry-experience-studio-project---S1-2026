@@ -331,7 +331,7 @@ if page == "dashboard":
     from views import home
     home.render(weather_data)
 elif page == "uv-awareness":
-    import views.uv_awareness as uv_awareness
+    from views import uv_awareness
     uv_awareness.render()
 elif page == "skin-type-tool":
     from views import skin_type_tool
