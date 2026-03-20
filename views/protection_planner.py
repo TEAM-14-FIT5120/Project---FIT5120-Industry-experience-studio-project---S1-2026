@@ -272,25 +272,31 @@ def render():
             """, unsafe_allow_html=True)
 
         # Packing checklist
-        st.markdown("<div style='margin: 1rem 0 0.5rem 0;'></div>", unsafe_allow_html=True)
-        st.markdown("### 🎒 Sun Protection Checklist")
+    st.markdown("<div style='margin: 1rem 0 0.5rem 0;'></div>", unsafe_allow_html=True)
+    st.markdown("### 🎒 Sun Protection Checklist")
 
+    with st.form("packing_checklist_form"):
         col1, col2 = st.columns(2)
 
         with col1:
-            st.checkbox("SPF 30+ Sunscreen", value=False)
-            st.checkbox("Wide-brimmed hat", value=False)
-            st.checkbox("UV-protective sunglasses", value=False)
-            st.checkbox("Protective clothing", value=False)
+            sunscreen = st.checkbox("SPF 30+ Sunscreen")
+            hat = st.checkbox("Wide-brimmed hat")
+            sunglasses = st.checkbox("UV-protective sunglasses")
+            clothing = st.checkbox("Protective clothing")
 
         with col2:
-            st.checkbox("Water bottle", value=False)
-            st.checkbox("Shade equipment (umbrella/tent)", value=False)
-            st.checkbox("Lip balm with SPF", value=False)
-            st.checkbox("After-sun lotion", value=False)
+            water = st.checkbox("Water bottle")
+            shade = st.checkbox("Shade equipment (umbrella/tent)")
+            lip_balm = st.checkbox("Lip balm with SPF")
+            after_sun = st.checkbox("After-sun lotion")
 
-        st.markdown("<div style='margin: 1rem 0;'></div>", unsafe_allow_html=True)
-        st.success("💾 **Tip:** Save this plan or set reminders on your phone!")
+        checklist_saved = st.form_submit_button("Save Checklist ✅")
+
+    if checklist_saved:
+        st.success("✅ Checklist saved!")
+
+    st.markdown("<div style='margin: 1rem 0;'></div>", unsafe_allow_html=True)
+    st.success("💾 **Tip:** Save this plan or set reminders on your phone!")
 
     # Quick tips
     st.markdown("<div style='margin: 1.5rem 0 1rem 0;'></div>", unsafe_allow_html=True)
