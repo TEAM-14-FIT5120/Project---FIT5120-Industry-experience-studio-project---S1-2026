@@ -78,6 +78,7 @@ def render(weather_data):
         if st.button("Search", use_container_width=True):
             if location_query.strip():
                 st.session_state.active_location_query = location_query.strip()
+                st.session_state.data_fetched = False
                 st.rerun() # This triggers streamlit_app.py to fetch new weather
 
     with col_current:

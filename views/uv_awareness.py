@@ -34,7 +34,7 @@ def render():
     </div>
     <div>
     <h2 style="margin:0;">Melanoma Cases in Australia</h2>
-    <p style="color:#6b7280;margin:0;">Annual diagnosed cases showing upward trend</p>
+    <p style="color:#6b7280;margin:0;">Annual mortality trend caused by skin cancer</p>
     </div>
     </div>
     """, unsafe_allow_html=True)
@@ -68,24 +68,31 @@ def render():
             margin=dict(l=40, r=20, t=10, b=40), # Tighter margins
             plot_bgcolor='white',
             paper_bgcolor='white',
+            font=dict(
+            color="black",
+            family="Arial, sans-serif"
+        ),
             xaxis=dict(
                 title='Year',
                 showgrid=False,
                 linecolor='#e5e7eb',
+                tickfont = dict(color = "black"),
                 dtick=2 # Shows labels every 2 years to stay clean
             ),
             yaxis=dict(
                 title='Cases',
                 showgrid=True,
                 gridcolor='#f3f4f6',
-                linecolor='#e5e7eb'
+                linecolor='#e5e7eb',
+                tickfont = dict(color = "black")
             ),
             legend=dict(
                 orientation="h",       # Horizontal legend
                 yanchor="bottom",
                 y=1.02,
                 xanchor="right",
-                x=1
+                x=1,
+                font = dict(color="black")
             ),
             hovermode='x unified'
         )
@@ -93,23 +100,12 @@ def render():
     with chart_col:
         st.plotly_chart(fig1, use_container_width=False)
 
-    val_2008 = df[df['Year'] == 2008]['Count'].sum()
-    val_2022 = df[df['Year'] == 2022]['Count'].sum()
-
-# 5. Calculate percentage increase
-    if val_2008 > 0:
-        percentage_change = ((val_2022 - val_2008) / val_2008) * 100
-        display_percent = round(abs(percentage_change))
-        direction = "increased" if percentage_change > 0 else "decreased"
-    else:
-        display_percent = 0
-        direction = "changed"
-        
     st.markdown(f"""
     <p style='text-align: center; color: #6b7280; font-size: 0.875rem; margin-top: 1rem;'>
-        Melanoma diagnoses among young Australians have {direction} by {display_percent}% from 2008 to 2022.
+        The above chart illustrates rising deaths caused by melanoma in Australia, with significant increase in the last 10 years. The charts shows that cancer rates in males is much higher compared to females over the same period highlighting a stigma regarding sun safety measures leading to higher mortality. This chart should act as a reminder that sun safety should not be taken lightly and all the precations and measures should be followed.
     </p>
     """, unsafe_allow_html=True)
+    
     
     st.markdown("</div>", unsafe_allow_html=True)
     
@@ -124,7 +120,7 @@ def render():
     </div>
     <div>
     <h2 style="margin:0;">Statewise Sunburn Rates (2023-2024)</h2>
-    <p style="color:#6b7280;margin:0;">Percentage of young Australians experiencing sunburn</p>
+    <p style="color:#6b7280;margin:0;">Percentage of Australians experiencing sunburn amongst people who have attempted to suntan (excluding self tanner or tanning lotions)</p>
     </div>
     </div>
     """, unsafe_allow_html=True)
@@ -186,7 +182,7 @@ def render():
             """
         
         layout = f"""
-        <div style="display: flex; align-items: center; margin-bottom: 8px; padding: 10px; border-bottom: 1px solid #f1f5f9; font-family: sans-serif; background-color: white;">
+        <div style="display: flex; align-items: center; margin-bottom: 3px; padding: 10px; border-bottom: 1px solid #f1f5f9; font-family: sans-serif; background-color: white;">
             <div style="width: 150px; font-weight: 600; font-size: 14px; color: #334155; flex-shrink: 0;">{region}</div>
             <div style="display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center; flex-grow: 1;">
                 {icons_html}
@@ -221,8 +217,8 @@ def render():
     
     
     st.markdown("""
-    <p style='text-align: center; color: #6b7280; font-size: 0.875rem; margin-top: 1rem;'>
-        Over 60% of young Australians report experiencing sunburn in the past year, indicating inadequate sun protection.
+    <p style='text-align: center; color: #6b7280; font-size: 0.875rem;'>
+        This visualization maps the behavioral risk-volume of young Australians across each state, specifically tracking the outcomes of intentional sun exposure. The width of each row represents the total population impact, where more circles indicate a higher volume of individuals in that region attempting to suntan. The red segments represent the percentage of people that reported a significant sunburn, while yellow segments indicate those who successfully avoided a burn. By correlating these tanning attempts with the final population, this chart highlights a dangerous trend: across all of Australia, a "safe tan" remains a statistical myth, with regions like Tasmania showing a staggering 11.3% of the population experiencing sunburn. This underscores the urgent need for improved sun safety education and interventions, especially in high-risk areas.
     </p>
     """, unsafe_allow_html=True)
     
